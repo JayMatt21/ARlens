@@ -1,0 +1,78 @@
+name: arlens
+description: AR Lens Calculator & Senfrost Aircon Services App
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+  flutter: ">=3.10.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # State Management
+  flutter_bloc: ^9.1.1
+  equatable: ^2.0.5
+
+  # Supabase
+  supabase_flutter: ^2.5.6
+
+  # Navigation
+  go_router: ^16.1.0
+
+  # UI & Utils
+  flutter_screenutil: ^5.9.0
+  intl: ^0.20.2
+  uuid: ^4.4.0
+  shared_preferences: ^2.2.3
+  
+  # Image & Camera
+  image_picker: ^1.1.2
+  cached_network_image: ^3.3.1
+  
+  # Dependency Injection
+  get_it: ^8.2.0
+  injectable: ^2.4.2
+  url_launcher: ^6.3.2
+
+
+# Icons & SignIn Buttons
+  font_awesome_flutter: 9.2.0
+  flutter_signin_button: ^2.0.0
+
+  cupertino_icons: ^1.0.5
+  
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_launcher_icons: ^0.11.0
+  flutter_lints: ^6.0.0
+  build_runner: ^2.4.12
+  injectable_generator: ^2.6.1
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/icons/
+    - assets/images/install.png
+    - assets/images/repair.png
+    - assets/images/PMS.png
+    - assets/images/background1.jpg
+    - assets/images/cleaning.png
+    - assets/images/relo.png
+    - assets/images/maintenance.png
+    - assets/images/main.png
+    - assets/images/survey.png
+    - assets/images/refill.png
+    - assets/images/image.png
+    - assets/icons/google.png
+    - assets/icons/facebook.png
+    - assets/icons/senfrost-simplified.png
+
+# Configuration for app icons
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/icons/senfrost-simplified.png"
