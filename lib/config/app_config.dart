@@ -10,7 +10,7 @@ class AppConfig {
   
   // Area Calculator Settings
   static const double defaultCeilingHeight = 2.8;
-  static const double btuPerSqMeter = 500; // BTU calculation base
+  static const double btuPerSqMeter = 500;
   
   // API Timeouts
   static const int connectionTimeout = 30000;
