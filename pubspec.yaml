@@ -70,6 +70,7 @@ flutter:
     - assets/icons/google.png
     - assets/icons/facebook.png
     - assets/icons/senfrost-simplified.png
+    - assets/text/privacy_policy.txt
 
 # Configuration for app icons
 flutter_icons:
