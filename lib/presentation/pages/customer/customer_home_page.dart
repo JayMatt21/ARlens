@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'services_page.dart';
 import 'products_page.dart';
 import 'settings_page.dart';
+import 'area_calculator_page.dart';
 
 class CustomerHomePage extends StatefulWidget {
   const CustomerHomePage({super.key});
@@ -16,7 +17,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
   final List<Widget> _pages = const [
     HomeTab(),
     ServicesPage(),
-    ProductsPage(),
+    AreaCalculatorPage(), 
     SettingsPage(),
   ];
 
@@ -30,16 +31,46 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: _pages[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onNavTapped,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-          BottomNavigationBarItem(icon: Icon(Icons.miscellaneous_services), label: "Services"),
-          BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: "Products"),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: "Settings"),
-        ],
+      bottomNavigationBar: BottomAppBar(
+        shape: const CircularNotchedRectangle(),
+        notchMargin: 8,
+        child: BottomNavigationBar(
+          currentIndex: _selectedIndex,
+          onTap: _onNavTapped,
+          type: BottomNavigationBarType.fixed,
+          selectedItemColor: Colors.blue,
+          unselectedItemColor: Colors.grey,
+          showUnselectedLabels: true,
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              label: "Home",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.miscellaneous_services),
+              label: "Services",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.shopping_cart),
+              label: "Products",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.settings),
+              label: "Settings",
+            ),
+          ],
+        ),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          setState(() {
+            _selectedIndex = 2; // <-- index ng AreaCalculatorPage
+          });
+        },
+        backgroundColor: Colors.blue,
+        child: const Icon(Icons.photo_camera),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
 }
