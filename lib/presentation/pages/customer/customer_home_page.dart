@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'services_page.dart';
 import 'products_page.dart';
 import 'settings_page.dart';
-import 'area_calculator_page.dart';
+import 'area_calculator_page.dart'; // ensure tama spelling (not "aera")
 
 class CustomerHomePage extends StatefulWidget {
   const CustomerHomePage({super.key});
@@ -17,7 +17,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
   final List<Widget> _pages = const [
     HomeTab(),
     ServicesPage(),
-    AreaCalculatorPage(), 
+    ProductsPage(),
     SettingsPage(),
   ];
 
@@ -25,6 +25,13 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
     setState(() {
       _selectedIndex = index;
     });
+  }
+
+  void _openAreaCalculator() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const AreaCalculatorPage()),
+    );
   }
 
   @override
@@ -62,11 +69,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          setState(() {
-            _selectedIndex = 2; // <-- index ng AreaCalculatorPage
-          });
-        },
+        onPressed: _openAreaCalculator,
         backgroundColor: Colors.blue,
         child: const Icon(Icons.photo_camera),
       ),
