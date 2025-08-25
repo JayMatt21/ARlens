@@ -1,8 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../datasources/supabase_datasource.dart';
 
-/// A datasource class to handle Supabase operations.
-/// This isolates all Supabase calls in one place.
 class SupabaseDataSource {
   final SupabaseClient client;
 
