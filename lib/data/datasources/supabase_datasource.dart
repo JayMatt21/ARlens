@@ -1,25 +1,29 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../datasources/supabase_datasource.dart';
+import 'package:arlens/core/error/exceptions.dart';
+
 
 class SupabaseDataSource {
   final SupabaseClient client;
 
   SupabaseDataSource(this.client);
 
-  /// Fetch all rows from a table
-  Future<List<Map<String, dynamic>>> fetchTable(String table) async {
-    try {
-      final response = await client.from(table).select();
-      return List<Map<String, dynamic>>.from(response);
-    } catch (e) {
-      throw ServerException("Failed to fetch data from $table: $e");
-    }
+ 
+Future<List<Map<String, dynamic>>> fetchTable(String table) async {
+  try {
+    final response = await client.from(table).select();
+    return (response as List).cast<Map<String, dynamic>>();
+  } catch (e) {
+    throw ServerException("Failed to fetch data from $table: $e");
   }
+}
 
   /// Insert a row into a table
   Future<void> insert(String table, Map<String, dynamic> data) async {
     try {
-      await client.from(table).insert(data);
+      final response = await client.from(table).insert(data);
+      if (response == null) {
+        throw ServerException("Insert returned null response in $table");
+      }
     } catch (e) {
       throw ServerException("Failed to insert into $table: $e");
     }
@@ -28,7 +32,11 @@ class SupabaseDataSource {
   /// Update a row by id
   Future<void> update(String table, Map<String, dynamic> data, String id) async {
     try {
-      await client.from(table).update(data).eq('id', id);
+      final response =
+          await client.from(table).update(data).eq('id', id).select();
+      if (response == null) {
+        throw ServerException("Update returned null response in $table");
+      }
     } catch (e) {
       throw ServerException("Failed to update $table (id=$id): $e");
     }
@@ -37,7 +45,10 @@ class SupabaseDataSource {
   /// Delete a row by id
   Future<void> delete(String table, String id) async {
     try {
-      await client.from(table).delete().eq('id', id);
+      final response = await client.from(table).delete().eq('id', id).select();
+      if (response == null) {
+        throw ServerException("Delete returned null response in $table");
+      }
     } catch (e) {
       throw ServerException("Failed to delete from $table (id=$id): $e");
     }
@@ -50,6 +61,9 @@ class SupabaseDataSource {
         email: email,
         password: password,
       );
+      if (response.user == null) {
+        throw ServerException("Invalid login credentials");
+      }
       return response;
     } catch (e) {
       throw ServerException("Failed to sign in: $e");
