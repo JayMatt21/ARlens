@@ -75,7 +75,6 @@ flutter:
     - assets/text/privacy_policy.txt
     - assets/sphere.glb
 
-# Configuration for app icons
 flutter_icons:
   android: true
   ios: true
