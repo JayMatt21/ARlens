@@ -1,14 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../bloc/area_calculator/area_calculator_bloc.dart';
+//import 'package:image_picker/image_picker.dart';
+import 'package:arlens/presentation/bloc/area_calculator/area_calculator_bloc.dart';
+import 'package:arlens/domain/usecases/calculate_area.dart';
+import 'package:arlens/presentation/pages/customer/area_calculator_ar_page.dart';
 
 class AreaCalculatorPage extends StatelessWidget {
   const AreaCalculatorPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // final ImagePicker picker = ImagePicker();
+
     return BlocProvider(
-      create: (_) => AreaCalculatorBloc(),
+      create: (_) => AreaCalculatorBloc(
+         calculateAreaUseCase: CalculateAreaUseCase(),
+      ),
       child: Scaffold(
         appBar: AppBar(
           title: const Text("Area Calculator"),
@@ -25,16 +32,15 @@ class AreaCalculatorPage extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 40),
-              ElevatedButton.icon(
+              ElevatedButton(
                 onPressed: () {
-             
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Camera feature coming soon")),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const AreaCalculatorARPage()),
                   );
                 },
-                icon: const Icon(Icons.camera_alt),
-                label: const Text("Open Camera"),
-              ),
+                child: const Text("Open AR Area Calculator"),
+              )
             ],
           ),
         ),

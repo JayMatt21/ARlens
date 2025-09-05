@@ -1,17 +1,28 @@
 import 'package:get_it/get_it.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'data/datasources/supabase_datasource.dart';
+import 'domain/usecases/create_appointment.dart';
+import 'domain/usecases/get_services.dart';
+import 'domain/usecases/get_products.dart';
+// import 'domain/repositories/app_repository.dart';
+import 'package:arlens/data/repositories/app_repository_impl.dart';
+import 'package:arlens/data/datasources/supabase_datasource.dart';
+import 'package:arlens/data/datasources/supabase_datasource_impl.dart';
+
+
 
 final sl = GetIt.instance;
 
 Future<void> init() async {
-  // External
-  sl.registerLazySingleton<SupabaseClient>(() => Supabase.instance.client);
+  // ✅ Register SupabaseDataSource first
+  
+  sl.registerLazySingleton<SupabaseDataSource>(() => SupabaseDataSourceImpl());
 
-  // Data sources
-  sl.registerLazySingleton<SupabaseDataSource>(
-    () => SupabaseDataSource(sl()),
+  // ✅ Pass it into AppRepositoryImpl
+  sl.registerLazySingleton<AppRepositoryImpl>(
+    () => AppRepositoryImpl(datasource: sl<SupabaseDataSource>()),
   );
 
-  // TODO: register repositories, use cases, etc.
+  // Use Cases
+  sl.registerLazySingleton(() => CreateAppointment(sl()));
+  sl.registerLazySingleton(() => GetProduct(sl()));
+  sl.registerLazySingleton(() => GetServices(sl()));
 }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'services_page.dart';
 import 'products_page.dart';
 import 'settings_page.dart';
-import 'area_calculator_page.dart'; // ensure tama spelling (not "aera")
+import 'area_calculator_page.dart';
 
 class CustomerHomePage extends StatefulWidget {
   const CustomerHomePage({super.key});

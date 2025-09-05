@@ -10,6 +10,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  ar_flutter_plugin_updated: ^0.0.1
+  vector_math: ^2.1.0
 
   # State Management
   flutter_bloc: ^9.1.1
@@ -28,7 +30,7 @@ dependencies:
   shared_preferences: ^2.2.3
   
   # Image & Camera
-  image_picker: ^1.1.2
+  image_picker: ^1.0.4
   cached_network_image: ^3.3.1
   
   # Dependency Injection
@@ -71,6 +73,7 @@ flutter:
     - assets/icons/facebook.png
     - assets/icons/senfrost-simplified.png
     - assets/text/privacy_policy.txt
+    - assets/sphere.glb
 
 # Configuration for app icons
 flutter_icons:
