@@ -36,7 +36,7 @@ class AreaCalculatorPage extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => const AreaCalculatorARPage()),
+                    MaterialPageRoute(builder: (_) => const AreaCalculatorPhotoPage()),
                   );
                 },
                 child: const Text("Open AR Area Calculator"),

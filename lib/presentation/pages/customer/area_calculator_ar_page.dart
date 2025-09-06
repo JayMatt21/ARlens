@@ -1,75 +1,97 @@
-import 'package:ar_flutter_plugin_updated/ar_flutter_plugin.dart';
-import 'package:ar_flutter_plugin_updated/datatypes/node_types.dart';
-import 'package:ar_flutter_plugin_updated/managers/ar_session_manager.dart';
-import 'package:ar_flutter_plugin_updated/managers/ar_object_manager.dart';
-import 'package:ar_flutter_plugin_updated/managers/ar_anchor_manager.dart';
-import 'package:ar_flutter_plugin_updated/managers/ar_location_manager.dart';
-import 'package:ar_flutter_plugin_updated/models/ar_node.dart';
-import 'package:ar_flutter_plugin_updated/widgets/ar_view.dart';
-import 'package:ar_flutter_plugin_updated/datatypes/config_planedetection.dart';
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:vector_math/vector_math_64.dart' as vm;
+import 'package:image_picker/image_picker.dart';
 
-
-class AreaCalculatorARPage extends StatefulWidget {
-  const AreaCalculatorARPage({super.key});
+class AreaCalculatorPhotoPage extends StatefulWidget {
+  const AreaCalculatorPhotoPage({super.key});
 
   @override
-  State<AreaCalculatorARPage> createState() => _AreaCalculatorARPageState();
+  State<AreaCalculatorPhotoPage> createState() => _AreaCalculatorPhotoPageState();
 }
 
-class _AreaCalculatorARPageState extends State<AreaCalculatorARPage> {
-  late ARSessionManager arSessionManager;
-  late ARObjectManager arObjectManager;
-  late ARAnchorManager arAnchorManager;
-  late ARLocationManager arLocationManager;
+class _AreaCalculatorPhotoPageState extends State<AreaCalculatorPhotoPage> {
+  File? _image;
+  final picker = ImagePicker();
 
-  List<vm.Vector3> points = [];
+  // List of 2D points tapped on photo
+  List<Offset> points = [];
   double calculatedArea = 0.0;
 
-  @override
-  void dispose() {
-    arSessionManager.dispose();
-    super.dispose();
-  }
+  // User-input reference object length in meters
+  double referenceLengthMeters = 1.0;
+  double referenceLengthPixels = 100.0; // default, updated after user taps reference
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("AR Area Calculator")),
-      body: Stack(
+      appBar: AppBar(title: const Text("Photo Area Calculator")),
+      body: Column(
         children: [
-          ARView(
-            onARViewCreated: onARViewCreated,
-            planeDetectionConfig: PlaneDetectionConfig.horizontal,
-          ),
-          Positioned(
-            bottom: 20,
-            left: 20,
-            right: 20,
-            child: Card(
-              color: Colors.white70,
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text("Points tapped: ${points.length}"),
-                    const SizedBox(height: 4),
-                    Text("Estimated area: ${calculatedArea.toStringAsFixed(2)} m²"),
-                    const SizedBox(height: 8),
-                    ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          points.clear();
-                          calculatedArea = 0.0;
-                        });
-                      },
-                      child: const Text("Reset"),
+          Expanded(
+            child: _image == null
+                ? Center(
+                    child: ElevatedButton(
+                      child: const Text("Take/Select Photo"),
+                      onPressed: _pickImage,
                     ),
-                  ],
+                  )
+                : GestureDetector(
+                    onTapDown: (details) {
+                      // Add point relative to image widget
+                      setState(() {
+                        points.add(details.localPosition);
+                        if (points.length >= 3) {
+                          calculatedArea = calculateArea(points);
+                        }
+                      });
+                    },
+                    child: Stack(
+                      children: [
+                        Image.file(_image!, fit: BoxFit.contain, width: double.infinity),
+                        // Draw points
+                        ...points.map(
+                          (p) => Positioned(
+                            left: p.dx - 5,
+                            top: p.dy - 5,
+                            child: Container(
+                              width: 10,
+                              height: 10,
+                              decoration: const BoxDecoration(
+                                color: Colors.red,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
+              children: [
+                Text("Points tapped: ${points.length}"),
+                const SizedBox(height: 4),
+                Text("Estimated area: ${calculatedArea.toStringAsFixed(2)} m²"),
+                const SizedBox(height: 8),
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      points.clear();
+                      calculatedArea = 0.0;
+                    });
+                  },
+                  child: const Text("Reset"),
                 ),
-              ),
+                const SizedBox(height: 8),
+                ElevatedButton(
+                  onPressed: () {
+                    _showACRecommendation(calculatedArea);
+                  },
+                  child: const Text("Suggest AC"),
+                ),
+              ],
             ),
           ),
         ],
@@ -77,57 +99,56 @@ class _AreaCalculatorARPageState extends State<AreaCalculatorARPage> {
     );
   }
 
-  void onARViewCreated(
-    ARSessionManager sessionManager,
-    ARObjectManager objectManager,
-    ARAnchorManager anchorManager,
-    ARLocationManager locationManager,
-  ) {
-    arSessionManager = sessionManager;
-    arObjectManager = objectManager;
-    arAnchorManager = anchorManager;
-    arLocationManager = locationManager;
-
-    arSessionManager.onInitialize(
-      showFeaturePoints: true,
-      showPlanes: true,
-      showWorldOrigin: true,
-      customPlaneTexturePath: "assets/triangle.png",
-    );
-
-    arObjectManager.onInitialize();
-
-    arSessionManager.onPlaneOrPointTap = (hits) async {
-      final hit = hits.first;
-      final position = hit.worldTransform.getTranslation();
-      points.add(position);
-
-      final node = ARNode(
-        type: NodeType.localGLTF2,
-        uri: "assets/sphere.glb", 
-        position: position,
-        scale: vm.Vector3(0.05, 0.05, 0.05),
-      );
-
-      await arObjectManager.addNode(node);
-
-      if (points.length >= 3) {
-        calculatedArea = calculateArea(points);
-      }
-
-      setState(() {});
-    };
+  Future<void> _pickImage() async {
+    final pickedFile = await picker.pickImage(source: ImageSource.camera);
+    if (pickedFile != null) {
+      setState(() {
+        _image = File(pickedFile.path);
+        points.clear();
+        calculatedArea = 0.0;
+      });
+    }
   }
 
-  double calculateArea(List<vm.Vector3> pts) {
+  // Calculate area using Shoelace formula, scaled by reference
+  double calculateArea(List<Offset> pts) {
     if (pts.length < 3) return 0.0;
 
     double sum = 0.0;
     for (int i = 0; i < pts.length; i++) {
       final p1 = pts[i];
       final p2 = pts[(i + 1) % pts.length];
-      sum += (p1.x * p2.z) - (p2.x * p1.z);
+      sum += (p1.dx * p2.dy) - (p2.dx * p1.dy);
     }
-    return sum.abs() / 2.0;
+
+    // Convert pixel area to real area in m²
+    double scale = referenceLengthMeters / referenceLengthPixels;
+    double areaInMeters2 = (sum.abs() / 2.0) * (scale * scale);
+    return areaInMeters2;
+  }
+
+  void _showACRecommendation(double area) {
+    String suggestion;
+    if (area <= 12) {
+      suggestion = "0.75–1 HP AC (Small Room)";
+    } else if (area <= 25) {
+      suggestion = "1–1.5 HP AC (Medium Room)";
+    } else {
+      suggestion = "2 HP+ AC (Large Room)";
+    }
+
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text("AC Recommendation"),
+        content: Text("Area: ${area.toStringAsFixed(2)} m²\n$suggestion"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("OK"),
+          )
+        ],
+      ),
+    );
   }
 }
