@@ -31,8 +31,8 @@ class _AreaCalculatorPhotoPageState extends State<AreaCalculatorPhotoPage> {
             child: _image == null
                 ? Center(
                     child: ElevatedButton(
-                      child: const Text("Take/Select Photo"),
                       onPressed: _pickImage,
+                      child: const Text("Take/Select Photo"),
                     ),
                   )
                 : GestureDetector(
