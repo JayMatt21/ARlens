@@ -25,7 +25,9 @@ abstract class AppRepository {
   // 🧾 Products
   Future<List<Product>> getProducts();
 
-  // 🔐 Auth
+  // 🔑 Auth
   Future<void> signIn(String email, String password);
   Future<void> signOut();
+  Future<void> signUp(String email, String password);
+  Future<void> resetPassword(String email);
 }

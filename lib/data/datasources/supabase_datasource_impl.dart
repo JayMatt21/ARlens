@@ -13,25 +13,16 @@ class SupabaseDataSourceImpl implements SupabaseDataSource {
 
   // ===== Appointments =====
   @override
-  Future<List<Appointment>> getAppointments() async {
-    // TODO: implement real API call using `client`
-    return [];
-  }
+  Future<List<Appointment>> getAppointments() async => [];
 
   @override
-  Future<void> createAppointment(Appointment appointment) async {
-    // TODO: POST to backend
-  }
+  Future<void> createAppointment(Appointment appointment) async {}
 
   @override
-  Future<void> updateAppointment(Appointment appointment) async {
-    // TODO: PATCH/PUT
-  }
+  Future<void> updateAppointment(Appointment appointment) async {}
 
   @override
-  Future<void> deleteAppointment(String id) async {
-    // TODO: DELETE
-  }
+  Future<void> deleteAppointment(String id) async {}
 
   // ===== Room measurements =====
   @override
@@ -45,25 +36,33 @@ class SupabaseDataSourceImpl implements SupabaseDataSource {
 
   // ===== AC recommendations =====
   @override
-  Future<List<ACRecommendation>> getACRecommendations() async {
-    return [];
-  }
+  Future<List<ACRecommendation>> getACRecommendations() async => [];
 
   // ===== Services & Products =====
   @override
-  Future<List<Service>> getServices() async {
-    return [];
-  }
+  Future<List<Service>> getServices() async => [];
 
   @override
-  Future<List<Product>> getProducts() async {
-    return [];
-  }
+  Future<List<Product>> getProducts() async => [];
 
   // ===== Auth =====
   @override
-  Future<void> signIn(String email, String password) async {}
+  Future<void> signIn(String email, String password) async {
+    // TODO: Supabase auth.signInWithPassword
+  }
 
   @override
-  Future<void> signOut() async {}
+  Future<void> signOut() async {
+    // TODO: Supabase auth.signOut
+  }
+
+  @override
+  Future<void> signUp(String email, String password) async {
+    // TODO: Supabase auth.signUp
+  }
+
+  @override
+  Future<void> resetPassword(String email) async {
+    // TODO: Supabase auth.resetPasswordForEmail
+  }
 }

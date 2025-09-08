@@ -5,25 +5,27 @@ import 'package:arlens/domain/entities/ac_recommendation.dart';
 import 'package:arlens/domain/entities/room_measurement.dart';
 
 abstract class SupabaseDataSource {
-  // Appointments
+  // ===== Appointments =====
   Future<List<Appointment>> getAppointments();
   Future<void> createAppointment(Appointment appointment);
   Future<void> updateAppointment(Appointment appointment);
   Future<void> deleteAppointment(String id);
 
-  // Room measurements
+  // ===== Room Measurements =====
   Future<void> createRoomMeasurement(RoomMeasurement entity);
   Future<void> updateRoomMeasurement(RoomMeasurement entity);
   Future<void> deleteRoomMeasurement(String id);
 
-  // AC recommendations
+  // ===== AC Recommendations =====
   Future<List<ACRecommendation>> getACRecommendations();
 
-  // Services & Products
+  // ===== Services & Products =====
   Future<List<Service>> getServices();
   Future<List<Product>> getProducts();
 
-  // Auth (optional)
+  // ===== Auth =====
   Future<void> signIn(String email, String password);
   Future<void> signOut();
+  Future<void> signUp(String email, String password);
+  Future<void> resetPassword(String email);
 }
