@@ -1,9 +1,8 @@
-import 'package:arlens/domain/entities/room_measurement.dart';
 import 'package:arlens/domain/entities/appointment.dart';
-import 'package:arlens/domain/entities/ac_recommendation.dart';
-import 'package:arlens/domain/entities/service.dart';
 import 'package:arlens/domain/entities/product.dart';
-
+import 'package:arlens/domain/entities/service.dart';
+import 'package:arlens/domain/entities/ac_recommendation.dart';
+import 'package:arlens/domain/entities/room_measurement.dart';
 
 abstract class AppRepository {
   // 🗓️ Appointments
@@ -26,7 +25,7 @@ abstract class AppRepository {
   // 🧾 Products
   Future<List<Product>> getProducts();
 
- 
+  // 🔐 Auth
   Future<void> signIn(String email, String password);
   Future<void> signOut();
 }

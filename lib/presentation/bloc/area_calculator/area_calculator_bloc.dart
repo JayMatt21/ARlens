@@ -1,78 +1,69 @@
-import 'package:arlens/domain/usecases/calculate_area.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:arlens/domain/entities/point_entity.dart';
+import 'area_calculator_event.dart';
+import 'area_calculator_state.dart';
+import 'package:arlens/domain/usecases/calculate_area.dart';
 
-class AreaCalculatorState {
-  final String? imagePath;
-  final bool showGrid;
-  final double? pixelsPerMeter;
-  final double? computedArea;
-  final List<PointEntity>? boundaryPoints;
 
-  AreaCalculatorState({
-    this.imagePath,
-    this.showGrid = true,
-    this.pixelsPerMeter,
-    this.computedArea,
-    this.boundaryPoints,
-  });
-
-  AreaCalculatorState copyWith({
-    String? imagePath,
-    bool? showGrid,
-    double? pixelsPerMeter,
-    double? computedArea,
-    List<PointEntity>? boundaryPoints,
-  }) {
-    return AreaCalculatorState(
-      imagePath: imagePath ?? this.imagePath,
-      showGrid: showGrid ?? this.showGrid,
-      pixelsPerMeter: pixelsPerMeter ?? this.pixelsPerMeter,
-      computedArea: computedArea ?? this.computedArea,
-      boundaryPoints: boundaryPoints ?? this.boundaryPoints,
-    );
-  }
-}
-
-class AreaCalculatorBloc extends Cubit<AreaCalculatorState> {
+class AreaCalculatorBloc extends Bloc<AreaCalculatorEvent, AreaCalculatorState> {
   final CalculateAreaUseCase calculateAreaUseCase;
 
   AreaCalculatorBloc({required this.calculateAreaUseCase})
-      : super(AreaCalculatorState());
-
-  /// Store the captured image path and reset previous area.
-  void setCapturedImage(String path) {
-    emit(state.copyWith(imagePath: path, computedArea: null));
+      : super(AreaCalculatorState.initial()) {
+    on<ImageCaptured>(_onImageCaptured);
+    on<GridToggled>(_onGridToggled);
+    on<ScaleCalibrated>(_onScaleCalibrated);
+    on<ComputeAreaRequested>(_onComputeAreaRequested);
+    on<CalculatorReset>(_onCalculatorReset);
   }
 
-  /// Show or hide the grid overlay.
-  void toggleGrid() {
+  void _onImageCaptured(
+    ImageCaptured event,
+    Emitter<AreaCalculatorState> emit,
+  ) {
+    emit(state.copyWith(
+      imagePath: event.imagePath,
+      status: AreaCalculatorStatus.imageCaptured,
+    ));
+  }
+
+  void _onGridToggled(
+    GridToggled event,
+    Emitter<AreaCalculatorState> emit,
+  ) {
     emit(state.copyWith(showGrid: !state.showGrid));
   }
 
-  /// Define how many pixels correspond to one meter.
-  void setPixelsPerMeter(double pixelsPerMeter) {
-    emit(state.copyWith(pixelsPerMeter: pixelsPerMeter));
+  void _onScaleCalibrated(
+    ScaleCalibrated event,
+    Emitter<AreaCalculatorState> emit,
+  ) {
+    emit(state.copyWith(
+      pixelsPerMeter: event.pixelsPerMeter,
+      status: AreaCalculatorStatus.scaleCalibrated,
+    ));
   }
 
-  /// Compute area in square meters given a pixel count.
-  /// area_m² = pixelCount / (pixelsPerMeter)²
-  void computeAreaFromPixels(double pixelCount) {
-    final ppm = state.pixelsPerMeter;
-    if (ppm != null && ppm > 0) {
-      final areaMeters = pixelCount / (ppm * ppm);
-      emit(state.copyWith(computedArea: areaMeters));
+  void _onComputeAreaRequested(
+    ComputeAreaRequested event,
+    Emitter<AreaCalculatorState> emit,
+  ) {
+    // Use the injected usecase that expects List<PointEntity>.
+    try {
+      final double area = calculateAreaUseCase.execute(event.points);
+      emit(state.copyWith(
+        computedArea: area,
+        status: AreaCalculatorStatus.areaComputed,
+      ));
+    } catch (e) {
+      // If you want an error status, add it to AreaCalculatorStatus and emit here.
+      // For now we silently ignore and keep previous state.
     }
   }
 
-  /// Compute area from boundary points using Shoelace formula.
-  void computeAreaFromPoints(List<PointEntity> points) {
-    final areaMeters = calculateAreaUseCase.execute(points);
-    emit(state.copyWith(computedArea: areaMeters, boundaryPoints: points));
-  }
-
-  /// Clear all data to start over.
-  void reset() {
-    emit(AreaCalculatorState());
+  void _onCalculatorReset(
+    CalculatorReset event,
+    Emitter<AreaCalculatorState> emit,
+  ) {
+    emit(AreaCalculatorState.initial());
   }
 }

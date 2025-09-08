@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:arlens/domain/entities/point_entity.dart';
 
 abstract class AreaCalculatorEvent extends Equatable {
   const AreaCalculatorEvent();
@@ -32,14 +33,14 @@ class ScaleCalibrated extends AreaCalculatorEvent {
   List<Object?> get props => [pixelsPerMeter];
 }
 
-/// Computes area based on pixel count (manual or auto-detected)
+/// Computes area based on a polygon given as points (Shoelace)
 class ComputeAreaRequested extends AreaCalculatorEvent {
-  final double pixelCount;
+  final List<PointEntity> points;
 
-  const ComputeAreaRequested(this.pixelCount);
+  const ComputeAreaRequested(this.points);
 
   @override
-  List<Object?> get props => [pixelCount];
+  List<Object?> get props => [points];
 }
 
 /// Resets the calculator to initial state

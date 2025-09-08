@@ -1,10 +1,9 @@
-import '../entities/product.dart';
 import '../repositories/app_repository.dart';
+import '../entities/product.dart';
 
-class GetProduct {
+class GetProducts {
   final AppRepository repository;
-
-  GetProduct(this.repository);
+  GetProducts(this.repository);
 
   Future<List<Product>> call() {
     return repository.getProducts();

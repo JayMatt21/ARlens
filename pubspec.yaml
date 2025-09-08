@@ -12,7 +12,9 @@ dependencies:
     sdk: flutter
   ar_flutter_plugin_updated: ^0.0.1
   vector_math: ^2.1.0
-
+  dartz: ^0.10.1
+  http: ^0.13.6
+  
   # State Management
   flutter_bloc: ^9.1.1
   equatable: ^2.0.5
@@ -52,6 +54,7 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   build_runner: ^2.4.12
   injectable_generator: ^2.6.1
+ 
 
 flutter:
   uses-material-design: true

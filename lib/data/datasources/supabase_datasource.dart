@@ -1,15 +1,29 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:arlens/domain/entities/appointment.dart';
+import 'package:arlens/domain/entities/product.dart';
+import 'package:arlens/domain/entities/service.dart';
+import 'package:arlens/domain/entities/ac_recommendation.dart';
+import 'package:arlens/domain/entities/room_measurement.dart';
 
 abstract class SupabaseDataSource {
-  Future<List<Map<String, dynamic>>> fetchTable(String table);
+  // Appointments
+  Future<List<Appointment>> getAppointments();
+  Future<void> createAppointment(Appointment appointment);
+  Future<void> updateAppointment(Appointment appointment);
+  Future<void> deleteAppointment(String id);
 
-  Future<void> insert(String table, Map<String, dynamic> data);
+  // Room measurements
+  Future<void> createRoomMeasurement(RoomMeasurement entity);
+  Future<void> updateRoomMeasurement(RoomMeasurement entity);
+  Future<void> deleteRoomMeasurement(String id);
 
-  Future<void> update(String table, Map<String, dynamic> data, String id);
+  // AC recommendations
+  Future<List<ACRecommendation>> getACRecommendations();
 
-  Future<void> delete(String table, String id);
+  // Services & Products
+  Future<List<Service>> getServices();
+  Future<List<Product>> getProducts();
 
-  Future<AuthResponse> signIn(String email, String password);
-
+  // Auth (optional)
+  Future<void> signIn(String email, String password);
   Future<void> signOut();
 }
