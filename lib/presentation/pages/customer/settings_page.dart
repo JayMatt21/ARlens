@@ -8,6 +8,7 @@ import 'purchase_history_page.dart';
 import 'terms_page.dart';
 import 'privacy_page.dart';
 
+
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
 
@@ -34,7 +35,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
     try {
       final profile = await Supabase.instance.client
-          .from('users')
+          .from('profiles') // Use 'profiles', not 'users'
           .select()
           .eq('id', user.id)
           .single();
@@ -66,7 +67,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
     try {
       await Supabase.instance.client
-          .from('users')
+          .from('profiles')
           .update(updates)
           .eq('id', user.id)
           .select();
@@ -94,15 +95,16 @@ class _SettingsPageState extends State<SettingsPage> {
 
   void _logout() async {
     await Supabase.instance.client.auth.signOut();
-      if (!mounted) return;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
-      });
+    if (!mounted) return;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+    });
+
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text("Logged out successfully.")),
     );
   }
-
 
   void _showEditProfileDialog() {
     showDialog(
@@ -154,7 +156,7 @@ class _SettingsPageState extends State<SettingsPage> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          // Profile Info
+          // Profile info card
           Card(
             child: ListTile(
               title: Text(
@@ -171,7 +173,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
           const SizedBox(height: 16),
 
-          // Purchase History
+          // Purchase history
           Card(
             child: ListTile(
               leading: const Icon(Icons.history),
@@ -201,7 +203,7 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
           ),
 
-          // Notifications
+          // Notifications toggle
           Card(
             child: SwitchListTile(
               secondary: const Icon(Icons.notifications),
@@ -252,7 +254,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
           const SizedBox(height: 20),
 
-          // Change Logs
+          // Change Logs section
           const Text(
             "Change Logs",
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -266,7 +268,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
           const SizedBox(height: 16),
 
-          // Logout
+          // Logout button card
           Card(
             color: Colors.red[50],
             child: ListTile(
