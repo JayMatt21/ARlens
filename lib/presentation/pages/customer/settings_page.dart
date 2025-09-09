@@ -34,7 +34,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
     try {
       final profile = await Supabase.instance.client
-          .from('profiles')
+          .from('users')
           .select()
           .eq('id', user.id)
           .single();
@@ -66,7 +66,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
     try {
       await Supabase.instance.client
-          .from('profiles')
+          .from('users')
           .update(updates)
           .eq('id', user.id)
           .select();
@@ -94,12 +94,15 @@ class _SettingsPageState extends State<SettingsPage> {
 
   void _logout() async {
     await Supabase.instance.client.auth.signOut();
-    if (!mounted) return;
-    Navigator.of(context).pushReplacementNamed('/login');
+      if (!mounted) return;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+      });
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text("Logged out successfully.")),
     );
   }
+
 
   void _showEditProfileDialog() {
     showDialog(
