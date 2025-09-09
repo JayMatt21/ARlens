@@ -75,25 +75,35 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  void manualLogin(BuildContext context) async {
-    final email = emailController.text.trim();
-    final password = passwordController.text.trim();
-    if (email.isEmpty || password.isEmpty) {
-      showError(context, 'Please enter email and password.');
-      return;
-    }
-
-    try {
-      final res = await supabase.auth.signInWithPassword(email: email, password: password);
-      if (res.session != null) {
-        _routeBasedOnRole(context);
-      } else {
-        showError(context, 'Login failed. Please check your credentials.');
+    void manualLogin(BuildContext context) async {
+      final email = emailController.text.trim();
+      final password = passwordController.text.trim();
+      if (email.isEmpty || password.isEmpty) {
+        showError(context, 'Please enter email and password.');
+        return;
       }
-    } catch (e) {
-      showError(context, 'Login error: $e');
+
+      try {
+        final res = await supabase.auth.signInWithPassword(email: email, password: password);
+
+        if (res.user == null) {
+          showError(context, 'Login failed. Please check your credentials.');
+          return;
+        }
+
+        // Check email is verified
+        if (res.user!.emailConfirmedAt == null) {
+          showError(context, 'Please verify your email first by clicking the link sent to your inbox.');
+          return;
+        }
+
+        // Email verified, proceed
+        _routeBasedOnRole(context);
+
+      } catch (e) {
+        showError(context, 'Login error: $e');
+      }
     }
-  }
 
   void signInWithGoogle(BuildContext context) async {
     try {

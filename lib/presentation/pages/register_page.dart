@@ -146,17 +146,17 @@ class _RegisterPageState extends State<RegisterPage> {
           'Registration successful! Please check your email '
           'to verify your account before logging in.');
 
-      Navigator.pushReplacementNamed(context, '/login');
-    } on AuthException catch (e) {
-      _showSnackBar(context, 'Registration error: ${e.message}');
-    } on PostgrestException catch (e) {
-      _showSnackBar(context, 'Database error: ${e.message}');
-    } catch (e) {
-      _showSnackBar(context, 'Unexpected error: $e');
-    } finally {
-      setState(() => _isLoading = false);
+        Navigator.pushReplacementNamed(context, '/verify-otp', arguments: email);
+      } on AuthException catch (e) {
+        _showSnackBar(context, 'Registration error: ${e.message}');
+      } on PostgrestException catch (e) {
+        _showSnackBar(context, 'Database error: ${e.message}');
+      } catch (e) {
+        _showSnackBar(context, 'Unexpected error: $e');
+      } finally {
+        setState(() => _isLoading = false);
+      }
     }
-  }
 
   Future<String> _getDefaultRoleId() async {
     final role = await supabase
