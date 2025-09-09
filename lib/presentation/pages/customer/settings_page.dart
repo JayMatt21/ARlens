@@ -2,77 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class PurchaseHistoryPage extends StatelessWidget {
-  const PurchaseHistoryPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Purchase History")),
-      body: const Center(child: Text("User purchase history goes here.")),
-    );
-  }
-}
-
-class ChangePasswordPage extends StatefulWidget {
-  const ChangePasswordPage({super.key});
-
-  @override
-  State<ChangePasswordPage> createState() => _ChangePasswordPageState();
-}
-
-class _ChangePasswordPageState extends State<ChangePasswordPage> {
-  final oldPassController = TextEditingController();
-  final newPassController = TextEditingController();
-  final confirmPassController = TextEditingController();
-
-  void _updatePassword() {
-    if (newPassController.text == confirmPassController.text) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Password updated successfully.")),
-      );
-      Navigator.pop(context);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Passwords do not match.")),
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Change Password")),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            TextField(
-              controller: oldPassController,
-              obscureText: true,
-              decoration: const InputDecoration(labelText: "Current Password"),
-            ),
-            TextField(
-              controller: newPassController,
-              obscureText: true,
-              decoration: const InputDecoration(labelText: "New Password"),
-            ),
-            TextField(
-              controller: confirmPassController,
-              obscureText: true,
-              decoration: const InputDecoration(labelText: "Confirm Password"),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _updatePassword,
-              child: const Text("Update Password"),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
+// Import your pages
+import 'change_password_page.dart';
+import 'purchase_history_page.dart';
+import 'terms_page.dart';
+import 'privacy_page.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -82,7 +16,6 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  final SupabaseClient supabase = Supabase.instance.client;
   final nameController = TextEditingController();
   final emailController = TextEditingController();
   final List<Map<String, dynamic>> changeLogs = [];
@@ -95,31 +28,27 @@ class _SettingsPageState extends State<SettingsPage> {
     _loadUserProfile();
   }
 
-    Future<void> _loadUserProfile() async {
-    final user = supabase.auth.currentUser;
+  Future<void> _loadUserProfile() async {
+    final user = Supabase.instance.client.auth.currentUser;
     if (user == null) return;
 
     try {
-      final response = await supabase
+      final profile = await Supabase.instance.client
           .from('profiles')
           .select()
           .eq('id', user.id)
-          .maybeSingle();
+          .single();
 
-      if (response != null) {
-        setState(() {
-          nameController.text = response['full_name'] ?? '';
-          emailController.text = response['email'] ?? '';
-        });
-      }
+      if (!mounted) return;
 
       setState(() {
+        nameController.text = profile['full_name'] ?? '';
+        emailController.text = profile['email'] ?? '';
         isLoading = false;
       });
     } catch (e) {
-      setState(() {
-        isLoading = false;
-      });
+      if (!mounted) return;
+      setState(() => isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to load profile: $e')),
       );
@@ -127,7 +56,7 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Future<void> _saveChanges() async {
-    final user = supabase.auth.currentUser;
+    final user = Supabase.instance.client.auth.currentUser;
     if (user == null) return;
 
     final updates = {
@@ -136,11 +65,13 @@ class _SettingsPageState extends State<SettingsPage> {
     };
 
     try {
-      await supabase
+      await Supabase.instance.client
           .from('profiles')
           .update(updates)
           .eq('id', user.id)
           .select();
+
+      if (!mounted) return;
 
       setState(() {
         changeLogs.add({
@@ -151,19 +82,20 @@ class _SettingsPageState extends State<SettingsPage> {
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Profile updated.")),
+        const SnackBar(content: Text("Profile updated successfully.")),
       );
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Failed to update profile: $e")),
       );
     }
   }
 
-  Future<void> _logout() async {
-    await supabase.auth.signOut();
+  void _logout() async {
+    await Supabase.instance.client.auth.signOut();
     if (!mounted) return;
-    Navigator.of(context).popUntil((route) => route.isFirst);
+    Navigator.of(context).pop(); 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text("Logged out successfully.")),
     );
@@ -219,13 +151,9 @@ class _SettingsPageState extends State<SettingsPage> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          // Profile Header
+          // Profile Info
           Card(
             child: ListTile(
-              leading: const CircleAvatar(
-                radius: 28,
-                backgroundImage: AssetImage("assets/images/profile_placeholder.png"),
-              ),
               title: Text(
                 nameController.text,
                 style: const TextStyle(fontWeight: FontWeight.bold),
@@ -277,9 +205,7 @@ class _SettingsPageState extends State<SettingsPage> {
               title: const Text("Enable Notifications"),
               value: notificationsEnabled,
               onChanged: (value) {
-                setState(() {
-                  notificationsEnabled = value;
-                });
+                setState(() => notificationsEnabled = value);
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
@@ -291,9 +217,39 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
           ),
 
-          const SizedBox(height: 16),
+          // Terms & Conditions
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.description),
+              title: const Text("Terms & Conditions"),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const TermsPage()),
+                );
+              },
+            ),
+          ),
 
-          // Change Logs Section
+          // Privacy Notice
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.privacy_tip),
+              title: const Text("Privacy Notice"),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const PrivacyPage()),
+                );
+              },
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          // Change Logs
           const Text(
             "Change Logs",
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
