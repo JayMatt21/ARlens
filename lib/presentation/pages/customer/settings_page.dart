@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-//import 'package:arlens/presentation/pages/splash_page.dart';
 import 'package:go_router/go_router.dart';
 
-
-// Import your pages
 import 'change_password_page.dart';
 import 'purchase_history_page.dart';
 import 'terms_page.dart';
@@ -19,8 +16,13 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  final nameController = TextEditingController();
+  final firstNameController = TextEditingController();
+  final middleInitialController = TextEditingController();
+  final lastNameController = TextEditingController();
+  final addressController = TextEditingController();
+  final mobileController = TextEditingController();
   final emailController = TextEditingController();
+
   final List<Map<String, dynamic>> changeLogs = [];
   bool notificationsEnabled = true;
   bool isLoading = true;
@@ -35,9 +37,11 @@ class _SettingsPageState extends State<SettingsPage> {
     final user = Supabase.instance.client.auth.currentUser;
     if (user == null) return;
 
+    setState(() => isLoading = true);
+
     try {
       final profile = await Supabase.instance.client
-          .from('profiles') 
+          .from('users')  // Use 'users' to match registration
           .select()
           .eq('id', user.id)
           .maybeSingle();
@@ -45,17 +49,23 @@ class _SettingsPageState extends State<SettingsPage> {
       if (!mounted) return;
 
       if (profile == null) {
-        
         setState(() {
-          nameController.text = '';
+          firstNameController.text = '';
+          middleInitialController.text = '';
+          lastNameController.text = '';
+          addressController.text = '';
+          mobileController.text = '';
           emailController.text = user.email ?? '';
           isLoading = false;
         });
       } else {
-   
         setState(() {
-          nameController.text = profile['full_name'] ?? '';
-          emailController.text = profile['email'] ?? user.email ?? '';
+          firstNameController.text = profile['first_name'] ?? '';
+          middleInitialController.text = profile['middle_initial'] ?? '';
+          lastNameController.text = profile['last_name'] ?? '';
+          addressController.text = profile['address'] ?? '';
+          mobileController.text = profile['mobile_number'] ?? '';
+          emailController.text = user.email ?? '';
           isLoading = false;
         });
       }
@@ -73,23 +83,26 @@ class _SettingsPageState extends State<SettingsPage> {
     if (user == null) return;
 
     final updates = {
-      'full_name': nameController.text,
-      'email': emailController.text,
+      'first_name': firstNameController.text.trim(),
+      'middle_initial': middleInitialController.text.trim(),
+      'last_name': lastNameController.text.trim(),
+      'address': addressController.text.trim(),
+      'mobile_number': mobileController.text.trim(),
     };
 
     try {
       await Supabase.instance.client
-          .from('profiles') 
+          .from('users')
           .update(updates)
-          .eq('id', user.id)
-          .select();
+          .eq('id', user.id);
 
       if (!mounted) return;
 
       setState(() {
         changeLogs.add({
-          'name': nameController.text,
-          'email': emailController.text,
+          'first_name': firstNameController.text,
+          'middle_initial': middleInitialController.text,
+          'last_name': lastNameController.text,
           'timestamp': DateFormat("yyyy-MM-dd HH:mm:ss").format(DateTime.now()),
         });
       });
@@ -109,9 +122,8 @@ class _SettingsPageState extends State<SettingsPage> {
     await Supabase.instance.client.auth.signOut();
     if (!mounted) return;
 
-  
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      GoRouter.of(context).go('/'); 
+      GoRouter.of(context).go('/'); // Adjust as your login route
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -125,18 +137,43 @@ class _SettingsPageState extends State<SettingsPage> {
       builder: (context) {
         return AlertDialog(
           title: const Text("Edit Profile"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: nameController,
-                decoration: const InputDecoration(labelText: "Full Name"),
-              ),
-              TextField(
-                controller: emailController,
-                decoration: const InputDecoration(labelText: "Email"),
-              ),
-            ],
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: firstNameController,
+                  decoration: const InputDecoration(labelText: "First Name"),
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: middleInitialController,
+                  decoration: const InputDecoration(labelText: "Middle Initial"),
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: lastNameController,
+                  decoration: const InputDecoration(labelText: "Last Name"),
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: addressController,
+                  decoration: const InputDecoration(labelText: "Address"),
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: mobileController,
+                  decoration: const InputDecoration(labelText: "Mobile Number"),
+                  keyboardType: TextInputType.phone,
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: emailController,
+                  decoration: const InputDecoration(labelText: "Email"),
+                  enabled: false,
+                ),
+              ],
+            ),
           ),
           actions: [
             TextButton(
@@ -169,11 +206,12 @@ class _SettingsPageState extends State<SettingsPage> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          // Profile info
           Card(
             child: ListTile(
               title: Text(
-                nameController.text,
+                '${firstNameController.text} '
+                '${middleInitialController.text} '
+                '${lastNameController.text}',
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               subtitle: Text(emailController.text),
@@ -183,10 +221,7 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
             ),
           ),
-
           const SizedBox(height: 16),
-
-          // Purchase history
           Card(
             child: ListTile(
               leading: const Icon(Icons.history),
@@ -200,8 +235,6 @@ class _SettingsPageState extends State<SettingsPage> {
               },
             ),
           ),
-
-          // Change Password
           Card(
             child: ListTile(
               leading: const Icon(Icons.lock),
@@ -215,8 +248,6 @@ class _SettingsPageState extends State<SettingsPage> {
               },
             ),
           ),
-
-          // Notifications
           Card(
             child: SwitchListTile(
               secondary: const Icon(Icons.notifications),
@@ -234,8 +265,6 @@ class _SettingsPageState extends State<SettingsPage> {
               },
             ),
           ),
-
-          // Terms & Conditions
           Card(
             child: ListTile(
               leading: const Icon(Icons.description),
@@ -249,8 +278,6 @@ class _SettingsPageState extends State<SettingsPage> {
               },
             ),
           ),
-
-          // Privacy Notice
           Card(
             child: ListTile(
               leading: const Icon(Icons.privacy_tip),
@@ -264,24 +291,19 @@ class _SettingsPageState extends State<SettingsPage> {
               },
             ),
           ),
-
           const SizedBox(height: 20),
-
-          // Change Logs
           const Text(
             "Change Logs",
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           ...changeLogs.map((log) {
             return ListTile(
-              title: Text("${log['name']} - ${log['email']}"),
+              title: Text(
+                  "${log['first_name']} ${log['middle_initial']} ${log['last_name']}"),
               subtitle: Text("Updated on: ${log['timestamp']}"),
             );
           }),
-
           const SizedBox(height: 16),
-
-          // Logout button
           Card(
             color: Colors.red[50],
             child: ListTile(
