@@ -68,8 +68,12 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  Widget buildFieldBox(TextEditingController controller, String label,
-      {bool obscureText = false, TextInputType keyboardType = TextInputType.text}) {
+  Widget buildFieldBox(
+    TextEditingController controller,
+    String label, {
+    bool obscureText = false,
+    TextInputType keyboardType = TextInputType.text,
+  }) {
     return SizedBox(
       width: 300,
       child: TextField(
@@ -120,14 +124,13 @@ class _RegisterPageState extends State<RegisterPage> {
       final res = await supabase.auth.signUp(email: email, password: password);
 
       if (res.user == null) {
-        _showSnackBar(context, 'Registration failed: Unknown error');
+        _showSnackBar(context, 'Registration failed: Unknown error.');
         setState(() => _isLoading = false);
         return;
       }
 
       final userId = res.user!.id;
 
-      // Insert additional user info into users table
       await supabase.from('users').insert({
         'id': userId,
         'first_name': firstName,
@@ -138,10 +141,16 @@ class _RegisterPageState extends State<RegisterPage> {
         'role_id': await _getDefaultRoleId(),
       });
 
-      _showSnackBar(context, 'Registration successful! Please login.');
-      Navigator.pop(context);
+      _showSnackBar(
+          context,
+          'Registration successful! Please check your email '
+          'to verify your account before logging in.');
+
+      Navigator.pushReplacementNamed(context, '/login');
     } on AuthException catch (e) {
       _showSnackBar(context, 'Registration error: ${e.message}');
+    } on PostgrestException catch (e) {
+      _showSnackBar(context, 'Database error: ${e.message}');
     } catch (e) {
       _showSnackBar(context, 'Unexpected error: $e');
     } finally {
@@ -150,7 +159,16 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   Future<String> _getDefaultRoleId() async {
-    final role = await supabase.from('roles').select('id').eq('name', 'User').single();
+    final role = await supabase
+        .from('roles')
+        .select('id')
+        .eq('name', 'User')
+        .single();
+
+    if (role['id'] == null) {
+      throw Exception('Default role not found');
+    }
+
     return role['id'];
   }
 
