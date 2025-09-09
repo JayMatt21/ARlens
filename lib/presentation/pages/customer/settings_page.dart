@@ -37,18 +37,28 @@ class _SettingsPageState extends State<SettingsPage> {
 
     try {
       final profile = await Supabase.instance.client
-          .from('profiles')
+          .from('profiles') 
           .select()
           .eq('id', user.id)
-          .single();
+          .maybeSingle();
 
       if (!mounted) return;
 
-      setState(() {
-        nameController.text = profile['full_name'] ?? '';
-        emailController.text = profile['email'] ?? '';
-        isLoading = false;
-      });
+      if (profile == null) {
+        
+        setState(() {
+          nameController.text = '';
+          emailController.text = user.email ?? '';
+          isLoading = false;
+        });
+      } else {
+   
+        setState(() {
+          nameController.text = profile['full_name'] ?? '';
+          emailController.text = profile['email'] ?? user.email ?? '';
+          isLoading = false;
+        });
+      }
     } catch (e) {
       if (!mounted) return;
       setState(() => isLoading = false);
