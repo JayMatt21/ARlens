@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'services_page.dart';
 import 'products_page.dart';
 import 'settings_page.dart';
-import 'area_calculator_page.dart';
+import 'area_calculator_page.dart'; // Your camera equivalent
 
 class CustomerHomePage extends StatefulWidget {
   const CustomerHomePage({super.key});
@@ -17,6 +17,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
   final List<Widget> _pages = const [
     HomeTab(),
     ServicesPage(),
+    AreaCalculatorPage(), // Camera page added here
     ProductsPage(),
     SettingsPage(),
   ];
@@ -25,13 +26,6 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
     setState(() {
       _selectedIndex = index;
     });
-  }
-
-  void _openAreaCalculator() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const AreaCalculatorPage()),
-    );
   }
 
   @override
@@ -58,6 +52,10 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
               label: "Services",
             ),
             BottomNavigationBarItem(
+              icon: Icon(Icons.photo_camera), // Camera icon here
+              label: "Camera",
+            ),
+            BottomNavigationBarItem(
               icon: Icon(Icons.shopping_cart),
               label: "Products",
             ),
@@ -68,11 +66,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _openAreaCalculator,
-        backgroundColor: Colors.blue,
-        child: const Icon(Icons.photo_camera),
-      ),
+      floatingActionButton: null, // No floating action button
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
