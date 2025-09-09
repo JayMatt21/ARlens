@@ -95,7 +95,7 @@ class _SettingsPageState extends State<SettingsPage> {
   void _logout() async {
     await Supabase.instance.client.auth.signOut();
     if (!mounted) return;
-    Navigator.of(context).pop(); 
+    Navigator.of(context).pushReplacementNamed('/login');
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text("Logged out successfully.")),
     );
