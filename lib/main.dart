@@ -1,16 +1,15 @@
+import 'package:arlens/presentation/pages/admin/admin_dashboard_page.dart';
+import 'package:arlens/presentation/pages/customer/customer_home_page.dart';
+import 'package:arlens/presentation/pages/technician/technician_dashboard_page.dart';
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-// Pages
+// Import your pages
 import 'presentation/pages/splash_page.dart';
 import 'presentation/pages/login_page.dart';
-import 'presentation/pages/customer/customer_home_page.dart';
 
-// Bloc
-import 'presentation/bloc/auth/auth_bloc.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,29 +17,25 @@ Future<void> main() async {
   // Initialize Supabase
   await Supabase.initialize(
     url: 'https://dnjfkyokmqqrpazprwwt.supabase.co',
-    anonKey: 'YOUR_SUPABASE_ANON_KEY', // replace with your key
+    anonKey:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRuamZreW9rbXFxcnBhenByd3d0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUwNzkwNTgsImV4cCI6MjA3MDY1NTA1OH0.nqYuNIFrC2fQuWiaj4_e2ggJEJTVHfguUsnPNnrk9O4',
   );
 
   final secureStorage = const FlutterSecureStorage();
 
   runApp(
-    BlocProvider(
-      create: (context) => AuthBloc(
-        supabaseClient: Supabase.instance.client,
-        secureStorage: secureStorage,
-      )..add(CheckAuthStatus()),
-      child: const ARLensApp(),
-    ),
+    ARLensApp(secureStorage: secureStorage),
   );
 }
 
 class ARLensApp extends StatelessWidget {
-  const ARLensApp({Key? key}) : super(key: key);
+  final FlutterSecureStorage secureStorage;
+
+  const ARLensApp({super.key, required this.secureStorage});
 
   @override
   Widget build(BuildContext context) {
-    // GoRouter configuration
-    final GoRouter router = GoRouter(
+    final GoRouter _router = GoRouter(
       initialLocation: '/',
       routes: [
         GoRoute(
@@ -52,8 +47,16 @@ class ARLensApp extends StatelessWidget {
           builder: (context, state) => const LoginPage(),
         ),
         GoRoute(
-          path: '/customer-home',
-          builder: (context, state) => const CustomerHomePage(), // no userEmail needed
+          path: '/customer',
+          builder: (context, state) => const CustomerHomePage(),
+        ),
+        GoRoute(
+          path: '/admin',
+          builder: (context, state) => const AdminDashboardPage(),
+        ),
+        GoRoute(
+          path: '/technician',
+          builder: (context, state) => const TechnicianDashboardPage(),
         ),
       ],
     );
@@ -65,8 +68,7 @@ class ARLensApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      routerConfig: router,
+      routerConfig: _router,
     );
   }
 }
-
