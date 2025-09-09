@@ -48,7 +48,7 @@ class ARLensApp extends StatelessWidget {
           builder: (context, state) => const RegisterPage(),
         ),
         GoRoute(
-          path: '/customer',
+          path: '/customer-home',
           builder: (context, state) => const CustomerHomePage(),
         ),
         GoRoute(

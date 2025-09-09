@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-//import 'package:go_router/go_router.dart';
+import 'package:go_router/go_router.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -175,9 +175,9 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
 
             // ✅ Start Your Journey Button
             ElevatedButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/login'); // or use context.go('/login') with GoRouter
-              },
+                onPressed: () {
+                  context.go('/login');
+                },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.orange,
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
