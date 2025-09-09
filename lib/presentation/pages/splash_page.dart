@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:go_router/go_router.dart';
+//import 'package:go_router/go_router.dart';
 
 
 class SplashPage extends StatefulWidget {
@@ -174,24 +174,7 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
               style: TextStyle(color: Colors.white, fontSize: 16),
             ),
             const SizedBox(height: 30),
-            ElevatedButton(
-                onPressed: () {
-                  // GoRouter navigation
-                  context.go('/login'); 
-                },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-              ),
-              child: const Text(
-                '🚀 Start Your Journey',
-                style: TextStyle(fontSize: 18, color: Colors.white),
-              ),
-            ),
+ 
           ],
         ),
       ),

@@ -36,30 +36,30 @@ class ARLensApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final GoRouter _router = GoRouter(
-      initialLocation: '/',
-      routes: [
-        GoRoute(
-          path: '/',
-          builder: (context, state) => const SplashPage(),
-        ),
-        GoRoute(
-          path: '/login',
-          builder: (context, state) => const LoginPage(),
-        ),
-        GoRoute(
-          path: '/customer',
-          builder: (context, state) => const CustomerHomePage(),
-        ),
-        GoRoute(
-          path: '/admin',
-          builder: (context, state) => const AdminDashboardPage(),
-        ),
-        GoRoute(
-          path: '/technician',
-          builder: (context, state) => const TechnicianDashboardPage(),
-        ),
-      ],
-    );
+          initialLocation: '/',
+          routes: [
+            GoRoute(
+              path: '/',
+              builder: (context, state) => const SplashPage(),
+            ),
+            GoRoute(
+              path: '/login',
+              builder: (context, state) => const LoginPage(),
+            ),
+            GoRoute(
+              path: '/customer',
+              builder: (context, state) => const CustomerHomePage(),
+            ),
+            GoRoute(
+              path: '/admin',
+              builder: (context, state) => const AdminDashboardPage(),
+            ),
+            GoRoute(
+              path: '/technician',
+              builder: (context, state) => const TechnicianDashboardPage(),
+            ),
+          ],
+        );
 
     return MaterialApp.router(
       title: 'AR Lens Calculator',
