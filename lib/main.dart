@@ -1,15 +1,15 @@
-import 'package:arlens/presentation/pages/admin/admin_dashboard_page.dart';
-import 'package:arlens/presentation/pages/customer/customer_home_page.dart';
-import 'package:arlens/presentation/pages/technician/technician_dashboard_page.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-// Import your pages
+// Import pages
 import 'presentation/pages/splash_page.dart';
 import 'presentation/pages/login_page.dart';
-
+import 'presentation/pages/register_page.dart';
+import 'presentation/pages/customer/customer_home_page.dart';
+import 'presentation/pages/admin/admin_dashboard_page.dart';
+import 'presentation/pages/technician/technician_dashboard_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,43 +23,44 @@ Future<void> main() async {
 
   final secureStorage = const FlutterSecureStorage();
 
-  runApp(
-    ARLensApp(secureStorage: secureStorage),
-  );
+  runApp(ARLensApp(secureStorage: secureStorage));
 }
 
 class ARLensApp extends StatelessWidget {
   final FlutterSecureStorage secureStorage;
-
   const ARLensApp({super.key, required this.secureStorage});
 
   @override
   Widget build(BuildContext context) {
     final GoRouter _router = GoRouter(
-          initialLocation: '/',
-          routes: [
-            GoRoute(
-              path: '/',
-              builder: (context, state) => const SplashPage(),
-            ),
-            GoRoute(
-              path: '/login',
-              builder: (context, state) => const LoginPage(),
-            ),
-            GoRoute(
-              path: '/customer',
-              builder: (context, state) => const CustomerHomePage(),
-            ),
-            GoRoute(
-              path: '/admin',
-              builder: (context, state) => const AdminDashboardPage(),
-            ),
-            GoRoute(
-              path: '/technician',
-              builder: (context, state) => const TechnicianDashboardPage(),
-            ),
-          ],
-        );
+      initialLocation: '/',
+      routes: [
+        GoRoute(
+          path: '/',
+          builder: (context, state) => const SplashPage(),
+        ),
+        GoRoute(
+          path: '/login',
+          builder: (context, state) => const LoginPage(),
+        ),
+        GoRoute(
+          path: '/register',
+          builder: (context, state) => const RegisterPage(),
+        ),
+        GoRoute(
+          path: '/customer',
+          builder: (context, state) => const CustomerHomePage(),
+        ),
+        GoRoute(
+          path: '/admin',
+          builder: (context, state) => const AdminDashboardPage(),
+        ),
+        GoRoute(
+          path: '/technician',
+          builder: (context, state) => const TechnicianDashboardPage(),
+        ),
+      ],
+    );
 
     return MaterialApp.router(
       title: 'AR Lens Calculator',

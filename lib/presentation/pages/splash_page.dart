@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 //import 'package:go_router/go_router.dart';
 
-
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
 
@@ -75,7 +74,6 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
             child: LayoutBuilder(
               builder: (context, constraints) {
                 bool isMobile = constraints.maxWidth < 700;
-
                 if (isMobile) {
                   return Column(
                     children: [
@@ -174,7 +172,24 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
               style: TextStyle(color: Colors.white, fontSize: 16),
             ),
             const SizedBox(height: 30),
- 
+
+            // ✅ Start Your Journey Button
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/login'); // or use context.go('/login') with GoRouter
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange,
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+              ),
+              child: const Text(
+                '🚀 Start Your Journey',
+                style: TextStyle(fontSize: 18, color: Colors.white),
+              ),
+            ),
           ],
         ),
       ),
