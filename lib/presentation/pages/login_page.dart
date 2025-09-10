@@ -158,7 +158,6 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     try {
-
       final Map<String, dynamic>? response = await supabase
           .from('users')
           .select('role_id, roles(name)')
@@ -171,12 +170,10 @@ class _LoginPageState extends State<LoginPage> {
         return;
       }
 
- 
       final dynamic rolesField = response['roles'];
       String? roleName;
 
       if (rolesField == null) {
-  
         final dynamic roleId = response['role_id'];
         if (roleId != null) {
           final Map<String, dynamic>? roleResp = await supabase
@@ -200,10 +197,9 @@ class _LoginPageState extends State<LoginPage> {
         context.go('/login');
         return;
       }
-
- 
       switch (roleName.toLowerCase()) {
         case 'customer':
+        case 'user':
           context.go('/customer-home');
           break;
         case 'admin':
@@ -217,12 +213,10 @@ class _LoginPageState extends State<LoginPage> {
           context.go('/login');
       }
     } catch (e) {
-   
       showError(context, 'Error fetching role: $e');
       context.go('/login');
     }
   }
-
 
   void signInWithGoogle(BuildContext context) async {
     try {
