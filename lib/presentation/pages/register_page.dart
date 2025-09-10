@@ -61,6 +61,28 @@ class _RegisterPageState extends State<RegisterPage> {
                       onPressed: () => registerUser(context),
                       child: const Text('Register'),
                     ),
+               Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      "Already have an account? ",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pushReplacementNamed(context, '/login');
+                      },
+                      child: const Text(
+                        "Login here",
+                        style: TextStyle(
+                          color: Colors.blueAccent,
+                          fontWeight: FontWeight.bold,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),     
             ],
           ),
         ),

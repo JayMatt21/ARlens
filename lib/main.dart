@@ -1,3 +1,4 @@
+import 'package:arlens/presentation/pages/verify_otp.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -46,6 +47,13 @@ class ARLensApp extends StatelessWidget {
         GoRoute(
           path: '/register',
           builder: (context, state) => const RegisterPage(),
+        ),
+        GoRoute(
+          path: '/verify-otp',
+          builder: (context, state) {
+            final email = state.extra as String;
+            return VerifyOtpPage(email: email);
+          },
         ),
         GoRoute(
           path: '/customer-home',
