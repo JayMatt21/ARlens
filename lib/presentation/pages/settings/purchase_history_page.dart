@@ -25,14 +25,15 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage> {
     }
 
     final response = await supabase
-        .from('purchase')
+        .from('purchase') // ✅ correct table
         .select('''
           id,
           quantity,
           purchase_date,
           total_price,
           products (
-            name
+            name,
+            price
           )
         ''')
         .eq('user_id', user.id)
@@ -67,15 +68,30 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage> {
               final purchase = purchases[index];
               final product = purchase['products'] as Map<String, dynamic>?;
               final productName = product?['name'] ?? "Unknown Product";
+              final unitPrice = product?['price'] ?? 0;
+              final quantity = purchase['quantity'] ?? 0;
+              final totalPrice = purchase['total_price'] ?? (unitPrice * quantity);
 
-              return ListTile(
-                title: Text(productName),
-                subtitle: Text(
-                  "Quantity: ${purchase['quantity']} | "
-                  "Total: ${purchase['total_price']}",
-                ),
-                trailing: Text(
-                  (purchase['purchase_date'] as String).split('T').first,
+              return Card(
+                margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                elevation: 2,
+                child: ListTile(
+                  title: Text(
+                    productName,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("Unit Price: ₱${unitPrice.toString()}"),
+                      Text("Quantity: $quantity"),
+                      Text("Total: ₱${totalPrice.toString()}"),
+                    ],
+                  ),
+                  trailing: Text(
+                    (purchase['purchase_date'] as String).split('T').first,
+                    style: const TextStyle(color: Colors.grey),
+                  ),
                 ),
               );
             },
