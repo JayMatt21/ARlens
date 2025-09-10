@@ -38,7 +38,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 const SizedBox(height: 20),
 
-                // Email
+           
                 TextField(
                   controller: emailController,
                   decoration: const InputDecoration(
@@ -50,18 +50,17 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 const SizedBox(height: 10),
 
-                // Password with toggle
+                
                 TextField(
                   controller: passwordController,
+                  obscureText: !_isPasswordVisible,
                   decoration: InputDecoration(
                     labelText: 'Password',
                     filled: true,
                     fillColor: Colors.white,
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _isPasswordVisible
-                            ? Icons.visibility_off
-                            : Icons.visibility,
+                        _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
                       ),
                       onPressed: () {
                         setState(() {
@@ -70,11 +69,10 @@ class _LoginPageState extends State<LoginPage> {
                       },
                     ),
                   ),
-                  obscureText: !_isPasswordVisible,
                 ),
                 const SizedBox(height: 20),
 
-                // Login button
+                
                 _isLoading
                     ? const CircularProgressIndicator(color: Colors.white)
                     : ElevatedButton(
@@ -82,7 +80,7 @@ class _LoginPageState extends State<LoginPage> {
                         child: const Text('Login'),
                       ),
 
-                // Register link
+               
                 TextButton(
                   onPressed: () => context.go('/register'),
                   child: const Text('Register now'),
@@ -95,7 +93,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 const SizedBox(height: 20),
 
-                // Social login buttons
+                
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -118,7 +116,6 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  // 🔑 Manual login
   void manualLogin(BuildContext context) async {
     final email = emailController.text.trim();
     final password = passwordController.text.trim();
@@ -131,22 +128,20 @@ class _LoginPageState extends State<LoginPage> {
     setState(() => _isLoading = true);
 
     try {
-      final res = await supabase.auth
-          .signInWithPassword(email: email, password: password);
+      final res = await supabase.auth.signInWithPassword(email: email, password: password);
 
       if (res.user == null) {
         showError(context, 'Login failed. Please check your credentials.');
         return;
       }
 
-      // Check if email is verified
+ 
       if (res.user!.emailConfirmedAt == null) {
-        showError(context,
-            'Please verify your email first by clicking the link sent to your inbox.');
+        showError(context, 'Please verify your email first by clicking the link sent to your inbox.');
         return;
       }
 
-      // Navigate based on role
+   
       await _routeBasedOnRole(context);
     } catch (e) {
       showError(context, 'Login error: $e');
@@ -155,7 +150,6 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  // 🔑 Route based on user role
   Future<void> _routeBasedOnRole(BuildContext context) async {
     final user = supabase.auth.currentUser;
     if (user == null) {
@@ -164,43 +158,75 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     try {
-      final response = await supabase
-          .from('users') 
-          .select('role')
+
+      final Map<String, dynamic>? response = await supabase
+          .from('users')
+          .select('role_id, roles(name)')
           .eq('id', user.id)
           .maybeSingle();
 
-      if (response == null || response['role'] == null) {
+      if (response == null) {
+        showError(context, 'User record not found.');
+        context.go('/login');
+        return;
+      }
+
+ 
+      final dynamic rolesField = response['roles'];
+      String? roleName;
+
+      if (rolesField == null) {
+  
+        final dynamic roleId = response['role_id'];
+        if (roleId != null) {
+          final Map<String, dynamic>? roleResp = await supabase
+              .from('roles')
+              .select('name')
+              .eq('id', roleId)
+              .maybeSingle();
+          roleName = roleResp?['name'] as String?;
+        }
+      } else if (rolesField is List && rolesField.isNotEmpty) {
+        final first = rolesField.first;
+        if (first is Map && first['name'] != null) {
+          roleName = first['name'] as String;
+        }
+      } else if (rolesField is Map && rolesField['name'] != null) {
+        roleName = rolesField['name'] as String;
+      }
+
+      if (roleName == null) {
         showError(context, 'User role not found.');
         context.go('/login');
         return;
       }
 
-      final userRole = response['role'] as String;
-
-      if (userRole == 'customer') {
-        context.go('/customer-home');
-      } else if (userRole == 'admin') {
-        context.go('/admin');
-      } else if (userRole == 'technician') {
-        context.go('/technician');
-      } else {
-        showError(context, 'Unknown role: $userRole');
-        context.go('/login');
+ 
+      switch (roleName.toLowerCase()) {
+        case 'customer':
+          context.go('/customer-home');
+          break;
+        case 'admin':
+          context.go('/admin');
+          break;
+        case 'technician':
+          context.go('/technician');
+          break;
+        default:
+          showError(context, 'Unknown role: $roleName');
+          context.go('/login');
       }
     } catch (e) {
+   
       showError(context, 'Error fetching role: $e');
       context.go('/login');
     }
   }
 
-  // 🔑 Social logins
+
   void signInWithGoogle(BuildContext context) async {
     try {
-      await supabase.auth.signInWithOAuth(
-        OAuthProvider.google,
-        redirectTo: 'arlens111://callback',
-      );
+      await supabase.auth.signInWithOAuth(OAuthProvider.google);
     } catch (e) {
       showError(context, 'Google login failed: $e');
     }
@@ -208,18 +234,13 @@ class _LoginPageState extends State<LoginPage> {
 
   void signInWithFacebook(BuildContext context) async {
     try {
-      await supabase.auth.signInWithOAuth(
-        OAuthProvider.facebook,
-        redirectTo: 'yourapp://callback',
-      );
+      await supabase.auth.signInWithOAuth(OAuthProvider.facebook);
     } catch (e) {
       showError(context, 'Facebook login failed: $e');
     }
   }
 
-  // 🔑 Snackbar error
   void showError(BuildContext context, String message) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 }
