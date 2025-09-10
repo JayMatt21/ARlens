@@ -21,6 +21,8 @@ class _RegisterPageState extends State<RegisterPage> {
 
   final supabase = Supabase.instance.client;
   bool _isLoading = false;
+  bool _showPassword = false;
+  bool _showConfirmPassword = false;
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +40,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 20),
-              
+
               buildFieldBox(firstNameController, 'First Name'),
               const SizedBox(height: 10),
               buildFieldBox(middleInitialController, 'Middle Initial'),
@@ -51,10 +53,14 @@ class _RegisterPageState extends State<RegisterPage> {
               const SizedBox(height: 10),
               buildFieldBox(emailController, 'Email', keyboardType: TextInputType.emailAddress),
               const SizedBox(height: 10),
-              buildFieldBox(passwordController, 'Password', obscureText: true),
+              buildPasswordBox(passwordController, 'Password', _showPassword, () {
+                setState(() => _showPassword = !_showPassword);
+              }),
               const SizedBox(height: 10),
-              buildFieldBox(confirmPasswordController, 'Confirm Password', obscureText: true),
-              
+              buildPasswordBox(confirmPasswordController, 'Confirm Password', _showConfirmPassword, () {
+                setState(() => _showConfirmPassword = !_showConfirmPassword);
+              }),
+
               const SizedBox(height: 20),
               _isLoading
                   ? const CircularProgressIndicator(color: Colors.white)
@@ -62,28 +68,30 @@ class _RegisterPageState extends State<RegisterPage> {
                       onPressed: () => registerUser(context),
                       child: const Text('Register'),
                     ),
-               Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text(
-                      "Already have an account? ",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        context.go('/login'); 
-                      },
-                      child: const Text(
-                        "Login here",
-                        style: TextStyle(
-                          color: Colors.blueAccent,
-                          fontWeight: FontWeight.bold,
-                          decoration: TextDecoration.underline,
-                        ),
+              const SizedBox(height: 20),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    "Already have an account? ",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      context.go('/login');
+                    },
+                    child: const Text(
+                      "Login here",
+                      style: TextStyle(
+                        color: Colors.blueAccent,
+                        fontWeight: FontWeight.bold,
+                        decoration: TextDecoration.underline,
                       ),
                     ),
-                  ],
-                ),     
+                  ),
+                ],
+              ),
             ],
           ),
         ),
@@ -114,89 +122,117 @@ class _RegisterPageState extends State<RegisterPage> {
       ),
     );
   }
-
-      Future<void> registerUser(BuildContext context) async {
-      final email = emailController.text.trim();
-      final firstName = firstNameController.text.trim();
-      final middleInitial = middleInitialController.text.trim();
-      final lastName = lastNameController.text.trim();
-      final address = addressController.text.trim();
-      final mobile = mobileController.text.trim();
-      final password = passwordController.text.trim();
-      final confirmPassword = confirmPasswordController.text.trim();
-
-      if (email.isEmpty ||
-          firstName.isEmpty ||
-          lastName.isEmpty ||
-          address.isEmpty ||
-          mobile.isEmpty ||
-          password.isEmpty ||
-          confirmPassword.isEmpty) {
-        _showSnackBar(context, 'Please fill out all required fields.');
-        return;
-      }
-
-      if (password != confirmPassword) {
-        _showSnackBar(context, 'Passwords do not match.');
-        return;
-      }
-
-      setState(() => _isLoading = true);
-
-      try {
-        final _ = await supabase
-          .from('users')
-          .insert({
-            'email': email,
-            'first_name': firstName,
-            'middle_initial': middleInitial,
-            'last_name': lastName,
-            'address': address,
-            'mobile_number': mobile,
-            'role_id': await _getDefaultRoleId(),
-            'is_verified': false,
-            'password': password,
-          });
-
-        final response = await supabase.functions.invoke(
-          'send-otp', 
-          body: {'email': email},
-        );
-
-        if (response.status != 200) {
-          throw Exception('Failed to send OTP');
-        }
-
-        Navigator.pushReplacementNamed(
-          context,
-          '/verify-otp',
-          arguments: email,
-        );
-      } catch (e) {
-        _showSnackBar(context, 'Registration error: $e');
-      } finally {
-        setState(() => _isLoading = false);
-      }
-    }
-
-
-      Future<String> _getDefaultRoleId() async {
-    final role = await supabase
-        .from('roles')
-        .select('id')
-        .eq('name', 'User')
-        .single();
-
-    if (role['id'] == null) {
-      throw Exception('Default role not found');
-    }
-
-    return role['id'];
+  Widget buildPasswordBox(
+    TextEditingController controller,
+    String label,
+    bool isVisible,
+    VoidCallback onToggle,
+  ) {
+    return SizedBox(
+      width: 300,
+      child: TextField(
+        controller: controller,
+        obscureText: !isVisible,
+        decoration: InputDecoration(
+          labelText: label,
+          filled: true,
+          fillColor: Colors.white,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          suffixIcon: IconButton(
+            icon: Icon(
+              isVisible ? Icons.visibility : Icons.visibility_off,
+            ),
+            onPressed: onToggle,
+          ),
+        ),
+      ),
+    );
   }
 
+  Future<void> registerUser(BuildContext context) async {
+    final email = emailController.text.trim();
+    final firstName = firstNameController.text.trim();
+    final middleInitial = middleInitialController.text.trim();
+    final lastName = lastNameController.text.trim();
+    final address = addressController.text.trim();
+    final mobile = mobileController.text.trim();
+    final password = passwordController.text.trim();
+    final confirmPassword = confirmPasswordController.text.trim();
+
+    if (email.isEmpty ||
+        firstName.isEmpty ||
+        lastName.isEmpty ||
+        address.isEmpty ||
+        mobile.isEmpty ||
+        password.isEmpty ||
+        confirmPassword.isEmpty) {
+      _showSnackBar(context, 'Please fill out all required fields.');
+      return;
+    }
+
+    if (password != confirmPassword) {
+      _showSnackBar(context, 'Passwords do not match.');
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      final _ = await supabase.from('users').insert({
+        'email': email,
+        'first_name': firstName,
+        'middle_initial': middleInitial,
+        'last_name': lastName,
+        'address': address,
+        'mobile_number': mobile,
+        'role_id': await _getDefaultRoleId(),
+        'is_verified': false,
+        'password': password,
+      });
+
+      final response = await supabase.functions.invoke(
+        'send-otp',
+        body: {'email': email},
+      );
+
+    try {
+      final status = (response as dynamic).status;
+      if (status != 200) {
+        throw Exception('Failed to send OTP (status $status)');
+      }
+    } catch (_) {}
+
+      context.go('/verify-otp', extra: email);
+    } catch (e) {
+      _showSnackBar(context, 'Registration error: $e');
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+    Future<String> _getDefaultRoleId() async {
+      try {
+        final role = await supabase
+            .from('roles')
+            .select('id')
+            .eq('name', 'User')
+            .single();
+
+        final id = role['id'];
+        if (id == null) {
+          throw Exception('Default role not found');
+        }
+        return id as String;
+      } on PostgrestException catch (e) {
+        throw Exception('Database error while fetching role: ${e.message}');
+      } catch (e) {
+        throw Exception('Unexpected error while fetching role: $e');
+      }
+    }
+
   void _showSnackBar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 }
