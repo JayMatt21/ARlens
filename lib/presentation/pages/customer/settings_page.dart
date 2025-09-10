@@ -41,7 +41,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
     try {
       final profile = await Supabase.instance.client
-          .from('users')  // Use 'users' to match registration
+          .from('users')
           .select()
           .eq('id', user.id)
           .maybeSingle();
