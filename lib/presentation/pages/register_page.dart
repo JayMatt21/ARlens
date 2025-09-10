@@ -92,73 +92,72 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  Future<void> registerUser(BuildContext context) async {
-    final email = emailController.text.trim();
-    final firstName = firstNameController.text.trim();
-    final middleInitial = middleInitialController.text.trim();
-    final lastName = lastNameController.text.trim();
-    final address = addressController.text.trim();
-    final mobile = mobileController.text.trim();
-    final password = passwordController.text.trim();
-    final confirmPassword = confirmPasswordController.text.trim();
+      Future<void> registerUser(BuildContext context) async {
+      final email = emailController.text.trim();
+      final firstName = firstNameController.text.trim();
+      final middleInitial = middleInitialController.text.trim();
+      final lastName = lastNameController.text.trim();
+      final address = addressController.text.trim();
+      final mobile = mobileController.text.trim();
+      final password = passwordController.text.trim();
+      final confirmPassword = confirmPasswordController.text.trim();
 
-    if (email.isEmpty ||
-        firstName.isEmpty ||
-        lastName.isEmpty ||
-        address.isEmpty ||
-        mobile.isEmpty ||
-        password.isEmpty ||
-        confirmPassword.isEmpty) {
-      _showSnackBar(context, 'Please fill out all required fields.');
-      return;
-    }
-
-    if (password != confirmPassword) {
-      _showSnackBar(context, 'Passwords do not match.');
-      return;
-    }
-
-    setState(() => _isLoading = true);
-
-    try {
-      final res = await supabase.auth.signUp(email: email, password: password);
-
-      if (res.user == null) {
-        _showSnackBar(context, 'Registration failed: Unknown error.');
-        setState(() => _isLoading = false);
+      if (email.isEmpty ||
+          firstName.isEmpty ||
+          lastName.isEmpty ||
+          address.isEmpty ||
+          mobile.isEmpty ||
+          password.isEmpty ||
+          confirmPassword.isEmpty) {
+        _showSnackBar(context, 'Please fill out all required fields.');
         return;
       }
 
-      final userId = res.user!.id;
+      if (password != confirmPassword) {
+        _showSnackBar(context, 'Passwords do not match.');
+        return;
+      }
 
-      await supabase.from('users').insert({
-        'id': userId,
-        'first_name': firstName,
-        'middle_initial': middleInitial,
-        'last_name': lastName,
-        'address': address,
-        'mobile_number': mobile,
-        'role_id': await _getDefaultRoleId(),
-      });
+      setState(() => _isLoading = true);
 
-      _showSnackBar(
+      try {
+        final _ = await supabase
+          .from('users')
+          .insert({
+            'email': email,
+            'first_name': firstName,
+            'middle_initial': middleInitial,
+            'last_name': lastName,
+            'address': address,
+            'mobile_number': mobile,
+            'role_id': await _getDefaultRoleId(),
+            'is_verified': false,
+            'password': password,
+          });
+
+        final response = await supabase.functions.invoke(
+          'send-otp', 
+          body: {'email': email},
+        );
+
+        if (response.status != 200) {
+          throw Exception('Failed to send OTP');
+        }
+
+        Navigator.pushReplacementNamed(
           context,
-          'Registration successful! Please check your email '
-          'to verify your account before logging in.');
-
-        Navigator.pushReplacementNamed(context, '/verify-otp', arguments: email);
-      } on AuthException catch (e) {
-        _showSnackBar(context, 'Registration error: ${e.message}');
-      } on PostgrestException catch (e) {
-        _showSnackBar(context, 'Database error: ${e.message}');
+          '/verify-otp',
+          arguments: email,
+        );
       } catch (e) {
-        _showSnackBar(context, 'Unexpected error: $e');
+        _showSnackBar(context, 'Registration error: $e');
       } finally {
         setState(() => _isLoading = false);
       }
     }
 
-  Future<String> _getDefaultRoleId() async {
+
+      Future<String> _getDefaultRoleId() async {
     final role = await supabase
         .from('roles')
         .select('id')

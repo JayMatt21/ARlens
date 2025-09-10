@@ -32,7 +32,7 @@ class ARLensApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final GoRouter _router = GoRouter(
+    final GoRouter router = GoRouter(
       initialLocation: '/',
       routes: [
         GoRoute(
@@ -69,7 +69,7 @@ class ARLensApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      routerConfig: _router,
+      routerConfig: router,
     );
   }
 }
