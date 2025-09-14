@@ -27,8 +27,7 @@ class _SchedulingPageState extends State<SchedulingPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title:
-            Text("Schedule - ${service['title'] ?? widget.brand ?? 'Aircon'}"),
+        title: Text("Schedule - ${service['title'] ?? widget.brand ?? 'Aircon'}"),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),
@@ -39,8 +38,7 @@ class _SchedulingPageState extends State<SchedulingPage> {
             if (service.isNotEmpty) ...[
               Text(
                 service['title'] ?? '',
-                style:
-                    const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 10),
               Text(
@@ -50,8 +48,7 @@ class _SchedulingPageState extends State<SchedulingPage> {
             ] else ...[
               Text(
                 "${widget.brand} - ${widget.size}",
-                style:
-                    const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 10),
               Text(
@@ -62,7 +59,7 @@ class _SchedulingPageState extends State<SchedulingPage> {
 
             const SizedBox(height: 20),
 
-            // 🟦 Date input
+            // 🟦 Date Picker
             TextField(
               controller: dateController,
               readOnly: true,
@@ -89,8 +86,8 @@ class _SchedulingPageState extends State<SchedulingPage> {
             DropdownButtonFormField<String>(
               value: selectedPeriod,
               items: const [
-                DropdownMenuItem(value: "AM", child: Text("AM (9:00 AM)")),
-                DropdownMenuItem(value: "PM", child: Text("PM (3:00 PM)")),
+                DropdownMenuItem(value: "AM", child: Text("AM")),
+                DropdownMenuItem(value: "PM", child: Text("PM")),
               ],
               onChanged: (value) {
                 setState(() {
@@ -138,23 +135,18 @@ class _SchedulingPageState extends State<SchedulingPage> {
                   final user = supabase.auth.currentUser;
 
                   try {
-                    // ✅ Combine date + AM/PM into proper DateTime
-                    final pickedDate = DateTime.parse(dateController.text);
-                    final appointmentDate = DateTime(
-                      pickedDate.year,
-                      pickedDate.month,
-                      pickedDate.day,
-                      selectedPeriod == "AM" ? 9 : 15, // 9AM or 3PM
-                    );
+                    // Save appointment_date (date only) + period (AM/PM)
+                    final appointmentDate = DateTime.parse(dateController.text);
 
-                    // ✅ Insert appointment
                     await supabase.from('appointments').insert({
                       'user_id': user!.id,
-                      'appointment_date': appointmentDate.toIso8601String(),
-                      'status': 'Pending',
-                      // optional details
-                      'service': widget.service?['title'] ?? widget.brand,
+                      'service': widget.service != null
+                          ? widget.service!['title']
+                          : widget.brand,
                       'details': widget.size,
+                      'appointment_date': appointmentDate.toIso8601String(),
+                      'period': selectedPeriod,
+                      'status': 'Pending',
                     });
 
                     if (!mounted) return;
