@@ -27,21 +27,34 @@ class _ManageAppointmentsPageState extends State<ManageAppointmentsPage> {
     });
 
     try {
-      // Latest SDK: no execute(), no response.error
+      // Fetch appointments with users join
       final data = await supabase
           .from('appointments')
           .select('''
             *,
             users!appointments_user_id_fkey(
-              profiles!inner(
-                full_name
-              )
+              first_name,
+              middle_initial,
+              last_name
             )
           ''')
           .order('created_at', ascending: false);
 
+      final List<dynamic> appointmentList = data as List<dynamic>;
+
+      // Build full name from users table
+      for (var appt in appointmentList) {
+        final user = appt['users'];
+        final firstName = user?['first_name'] ?? '';
+        final middleInitial = user?['middle_initial'] ?? '';
+        final lastName = user?['last_name'] ?? '';
+        final fullName =
+            '$firstName ${middleInitial.isNotEmpty ? middleInitial + '. ' : ''}$lastName';
+        appt['customer_name'] = fullName.isNotEmpty ? fullName : 'No Name';
+      }
+
       setState(() {
-        appointments = data as List<dynamic>;
+        appointments = appointmentList;
         loading = false;
       });
     } catch (error) {
@@ -55,6 +68,7 @@ class _ManageAppointmentsPageState extends State<ManageAppointmentsPage> {
     }
   }
 
+  // ------------------ Update Appointment Status ------------------
   Future<void> _updateStatus(String id, String newStatus) async {
     try {
       await supabase
@@ -68,6 +82,7 @@ class _ManageAppointmentsPageState extends State<ManageAppointmentsPage> {
     }
   }
 
+  // ------------------ Date Formatting ------------------
   String _formatDateTime(String isoString) {
     try {
       final dt = DateTime.parse(isoString).toLocal();
@@ -77,6 +92,7 @@ class _ManageAppointmentsPageState extends State<ManageAppointmentsPage> {
     }
   }
 
+  // ------------------ Build UI ------------------
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -94,9 +110,8 @@ class _ManageAppointmentsPageState extends State<ManageAppointmentsPage> {
                   itemBuilder: (context, index) {
                     final appointment = appointments[index];
 
-                    
                     final customerName =
-                        appointment['users']?['profiles']?['full_name'] ?? 'No Name';
+                        appointment['customer_name'] ?? 'No Name';
                     final service = appointment["service"] ?? 'Unknown Service';
                     final details = appointment["details"] ?? '';
                     final date = appointment["appointment_date"] != null
@@ -146,15 +161,17 @@ class _ManageAppointmentsPageState extends State<ManageAppointmentsPage> {
                                 ),
                                 if (status == "Pending") ...[
                                   TextButton.icon(
-                                    onPressed: () =>
-                                        _updateStatus(appointment["id"], "Approved"),
-                                    icon: const Icon(Icons.check, color: Colors.green),
+                                    onPressed: () => _updateStatus(
+                                        appointment["id"], "Approved"),
+                                    icon: const Icon(Icons.check,
+                                        color: Colors.green),
                                     label: const Text("Approve"),
                                   ),
                                   TextButton.icon(
-                                    onPressed: () =>
-                                        _updateStatus(appointment["id"], "Rejected"),
-                                    icon: const Icon(Icons.close, color: Colors.red),
+                                    onPressed: () => _updateStatus(
+                                        appointment["id"], "Rejected"),
+                                    icon: const Icon(Icons.close,
+                                        color: Colors.red),
                                     label: const Text("Reject"),
                                   ),
                                 ],
