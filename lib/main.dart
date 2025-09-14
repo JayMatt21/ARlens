@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-
-// Import pages
 import 'presentation/pages/splash_page.dart';
 import 'presentation/pages/login_page.dart';
 import 'presentation/pages/register_page.dart';
 import 'presentation/pages/customer/customer_home_page.dart';
 import 'presentation/pages/admin/admin_dashboard_page.dart';
 import 'presentation/pages/technician/technician_dashboard_page.dart';
+import 'presentation/pages/customer/schedulling_page.dart';
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -66,6 +66,16 @@ class ARLensApp extends StatelessWidget {
         GoRoute(
           path: '/technician',
           builder: (context, state) => const TechnicianDashboardPage(),
+        ),
+
+        // Scheduling route
+        GoRoute(
+          path: '/scheduling',
+          builder: (context, state) {
+            final service =
+                state.extra as Map<String, dynamic>?; 
+            return SchedulingPage(service: service);
+          },
         ),
       ],
     );
