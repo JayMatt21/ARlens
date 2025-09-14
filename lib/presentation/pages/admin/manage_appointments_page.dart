@@ -26,20 +26,34 @@ class _ManageAppointmentsPageState extends State<ManageAppointmentsPage> {
     });
 
     try {
-      final data = await supabase
+      // ✅ Correct join: appointments -> users -> profiles
+      final response = await supabase
           .from('appointments')
-          .select('*, profiles: user_id (full_name)')
+          .select(
+            '''
+            *,
+            users!inner(
+              id,
+              profiles!inner(
+                id,
+                full_name
+              )
+            )
+            '''
+          )
           .order('created_at', ascending: false);
 
       setState(() {
-        appointments = List<Map<String, dynamic>>.from(data);
+        appointments = List<Map<String, dynamic>>.from(response);
         loading = false;
       });
-    } catch (e) {
-      debugPrint("Error loading appointments: $e");
-      setState(() => loading = false);
+    } catch (error) {
+      setState(() {
+        loading = false;
+      });
+      debugPrint("Error loading appointments: $error");
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error loading appointments: $e")),
+        SnackBar(content: Text("Error loading appointments: $error")),
       );
     }
   }
@@ -51,11 +65,9 @@ class _ManageAppointmentsPageState extends State<ManageAppointmentsPage> {
           .update({'status': newStatus})
           .eq('id', id);
 
-      _loadAppointments();
+      _loadAppointments(); // refresh list
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error updating status: $e")),
-      );
+      debugPrint("Error updating status: $e");
     }
   }
 
@@ -84,7 +96,9 @@ class _ManageAppointmentsPageState extends State<ManageAppointmentsPage> {
                   itemCount: appointments.length,
                   itemBuilder: (context, index) {
                     final appointment = appointments[index];
-                    final customerName = appointment['profiles']?['full_name'] ?? 'No Name';
+
+                    // ✅ Properly get customer name from profiles
+                    final customerName = appointment['users']?['profiles']?['full_name'] ?? 'No Name';
 
                     return Card(
                       margin: const EdgeInsets.symmetric(vertical: 8),
@@ -98,50 +112,57 @@ class _ManageAppointmentsPageState extends State<ManageAppointmentsPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "${appointment['service'] ?? 'Unknown'} - $customerName",
+                              "${appointment["service"] ?? 'Unknown Service'} - $customerName",
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            if (appointment['details'] != null)
-                              Text("Details: ${appointment['details']}"),
+
+                            if (appointment["details"] != null)
+                              Text("Details: ${appointment["details"]}"),
+
                             const SizedBox(height: 6),
-                            if (appointment['appointment_date'] != null)
+
+                            if (appointment["appointment_date"] != null)
                               Text(
-                                "Appointment: ${_formatDateTime(appointment['appointment_date'])}",
+                                "Appointment: ${_formatDateTime(appointment["appointment_date"])}",
                               ),
+
                             const SizedBox(height: 8),
+
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Chip(
-                                  label: Text(appointment['status'] ?? 'N/A'),
+                                  label: Text(appointment["status"] ?? 'N/A'),
                                   backgroundColor:
-                                      appointment['status'] == "Pending"
+                                      appointment["status"] == "Pending"
                                           ? Colors.orange.shade100
-                                          : appointment['status'] == "Approved"
+                                          : appointment["status"] == "Approved"
                                               ? Colors.green.shade100
                                               : Colors.red.shade100,
                                   labelStyle: TextStyle(
-                                    color: appointment['status'] == "Pending"
+                                    color: appointment["status"] == "Pending"
                                         ? Colors.orange
-                                        : appointment['status'] == "Approved"
+                                        : appointment["status"] == "Approved"
                                             ? Colors.green
                                             : Colors.red,
                                   ),
                                 ),
-                                if (appointment['status'] == "Pending") ...[
+                                if (appointment["status"] == "Pending") ...[
                                   TextButton.icon(
-                                    onPressed: () =>
-                                        _updateStatus(appointment['id'], "Approved"),
-                                    icon: const Icon(Icons.check, color: Colors.green),
+                                    onPressed: () => _updateStatus(
+                                        appointment["id"], "Approved"),
+                                    icon: const Icon(Icons.check,
+                                        color: Colors.green),
                                     label: const Text("Approve"),
                                   ),
                                   TextButton.icon(
-                                    onPressed: () =>
-                                        _updateStatus(appointment['id'], "Rejected"),
-                                    icon: const Icon(Icons.close, color: Colors.red),
+                                    onPressed: () => _updateStatus(
+                                        appointment["id"], "Rejected"),
+                                    icon: const Icon(Icons.close,
+                                        color: Colors.red),
                                     label: const Text("Reject"),
                                   ),
                                 ]
