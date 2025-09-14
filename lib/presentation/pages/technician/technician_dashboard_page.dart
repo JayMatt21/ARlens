@@ -2,7 +2,7 @@ import 'package:arlens/presentation/pages/technician/area_calculator_page.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:go_router/go_router.dart';
-//ignore:unsued_import
+
 //import 'package:arlens/presentation/pages/customer/area_calculator_ar_page.dart';
 
 class TechnicianDashboardPage extends StatefulWidget {
@@ -133,7 +133,7 @@ class _TechnicianDashboardPageState extends State<TechnicianDashboardPage> {
   void _openARCalculator() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => const AreaCalculatorPage()),
+      MaterialPageRoute(builder: (_) => const AreaCalculatorPhotoPage()),
     );
   }
 
