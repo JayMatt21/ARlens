@@ -20,24 +20,33 @@ class _ManageAppointmentsPageState extends State<ManageAppointmentsPage> {
   }
 
   Future<void> _loadAppointments() async {
-    final data = await supabase
-        .from('appointments')
-        .select()
-        .order('created_at', ascending: false);
+    try {
+      final data = await supabase
+          .from('appointments')
+          .select('id, status, appointment_date, created_at, user_id, profiles(email, full_name)')
+          .order('created_at', ascending: false);
 
-    setState(() {
-      appointments = List<Map<String, dynamic>>.from(data);
-      loading = false;
-    });
+      setState(() {
+        appointments = List<Map<String, dynamic>>.from(data);
+        loading = false;
+      });
+    } catch (e) {
+      debugPrint("Error loading appointments: $e");
+      setState(() => loading = false);
+    }
   }
 
-  Future<void> _updateStatus(int id, String newStatus) async {
-    await supabase
-        .from('appointments')
-        .update({'status': newStatus})
-        .eq('id', id);
+  Future<void> _updateStatus(String id, String newStatus) async {
+    try {
+      await supabase
+          .from('appointments')
+          .update({'status': newStatus, 'updated_at': DateTime.now().toIso8601String()})
+          .eq('id', id);
 
-    _loadAppointments(); // refresh list
+      _loadAppointments(); // refresh list
+    } catch (e) {
+      debugPrint("Error updating status: $e");
+    }
   }
 
   @override
@@ -57,6 +66,14 @@ class _ManageAppointmentsPageState extends State<ManageAppointmentsPage> {
                   itemBuilder: (context, index) {
                     final appointment = appointments[index];
 
+                    final profile = appointment["profiles"] ?? {};
+                    final customerName = profile["full_name"] ?? "Unknown";
+                    final customerEmail = profile["email"] ?? "No Email";
+
+                    final appointmentDate = appointment["appointment_date"] != null
+                        ? DateTime.parse(appointment["appointment_date"])
+                        : null;
+
                     return Card(
                       margin: const EdgeInsets.symmetric(vertical: 8),
                       shape: RoundedRectangleBorder(
@@ -69,17 +86,18 @@ class _ManageAppointmentsPageState extends State<ManageAppointmentsPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "${appointment["service"] ?? 'Unknown'} - ${appointment["customer_email"] ?? 'No Email'}",
+                              "Customer: $customerName",
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            if (appointment["details"] != null)
-                              Text("Details: ${appointment["details"]}"),
-                            const SizedBox(height: 6),
-                            Text("Date: ${appointment["date"] ?? ''}"),
-                            Text("Time: ${appointment["time"] ?? ''}"),
+                            Text("Email: $customerEmail"),
+                            if (appointmentDate != null)
+                              Text(
+                                "Appointment: ${appointmentDate.toLocal()}",
+                                style: const TextStyle(color: Colors.black87),
+                              ),
                             const SizedBox(height: 8),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
