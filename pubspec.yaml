@@ -78,6 +78,10 @@ flutter:
     - assets/icons/senfrost-simplified.png
     - assets/text/privacy_policy.txt
     - assets/sphere.glb
+    - assets/images/windowtype.jpg
+    - assets/images/splittype.jpg
+    - assets/images/portable.jpg
+
 
 flutter_icons:
   android: true
