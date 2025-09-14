@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SchedulingPage extends StatefulWidget {
   final Map<String, dynamic>? service;
@@ -120,7 +121,7 @@ class _SchedulingPageState extends State<SchedulingPage> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   if (dateController.text.isEmpty || selectedPeriod == null) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
@@ -130,19 +131,42 @@ class _SchedulingPageState extends State<SchedulingPage> {
                     return;
                   }
 
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        "Your request for ${service['title'] ?? widget.brand} "
-                        "on ${dateController.text} (${selectedPeriod!}) "
-                        "is waiting for Admin confirmation. "
-                        "Please wait for a call from our team.",
-                      ),
-                      duration: const Duration(seconds: 5),
-                    ),
-                  );
+                  final supabase = Supabase.instance.client;
+                  final user = supabase.auth.currentUser;
 
-                  Navigator.pop(context);
+                  try {
+                    await supabase.from('appointments').insert({
+                      'customer_id': user?.id,
+                      'customer_email': user?.email,
+                      'service': widget.service != null
+                          ? widget.service!['title']
+                          : widget.brand,
+                      'details': widget.size,
+                      'date': dateController.text,
+                      'time': selectedPeriod,
+                      'status': 'Pending',
+                      'created_at': DateTime.now().toIso8601String(),
+                    });
+
+                    if (!mounted) return;
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          "Your request has been submitted. Waiting for Admin confirmation.",
+                        ),
+                        duration: Duration(seconds: 5),
+                      ),
+                    );
+
+                    Navigator.pop(context);
+                  } catch (error) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text("Error submitting request: $error"),
+                      ),
+                    );
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 14),
