@@ -27,18 +27,20 @@ class _SchedulingPageState extends State<SchedulingPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Schedule - ${service['title'] ?? widget.brand ?? 'Aircon'}"),
+        title:
+            Text("Schedule - ${service['title'] ?? widget.brand ?? 'Aircon'}"),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Product / Service Info
+            // 🟦 Product / Service Info
             if (service.isNotEmpty) ...[
               Text(
                 service['title'] ?? '',
-                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 10),
               Text(
@@ -48,7 +50,8 @@ class _SchedulingPageState extends State<SchedulingPage> {
             ] else ...[
               Text(
                 "${widget.brand} - ${widget.size}",
-                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 10),
               Text(
@@ -59,7 +62,7 @@ class _SchedulingPageState extends State<SchedulingPage> {
 
             const SizedBox(height: 20),
 
-            // Date input
+            // 🟦 Date input
             TextField(
               controller: dateController,
               readOnly: true,
@@ -76,18 +79,18 @@ class _SchedulingPageState extends State<SchedulingPage> {
                 );
                 if (pickedDate != null) {
                   dateController.text =
-                      "${pickedDate.year}-${pickedDate.month}-${pickedDate.day}";
+                      "${pickedDate.year}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}";
                 }
               },
             ),
             const SizedBox(height: 16),
 
-            // AM/PM Dropdown
+            // 🟦 AM/PM Dropdown
             DropdownButtonFormField<String>(
               value: selectedPeriod,
               items: const [
-                DropdownMenuItem(value: "AM", child: Text("AM")),
-                DropdownMenuItem(value: "PM", child: Text("PM")),
+                DropdownMenuItem(value: "AM", child: Text("AM (9:00 AM)")),
+                DropdownMenuItem(value: "PM", child: Text("PM (3:00 PM)")),
               ],
               onChanged: (value) {
                 setState(() {
@@ -101,7 +104,7 @@ class _SchedulingPageState extends State<SchedulingPage> {
             ),
             const SizedBox(height: 20),
 
-            // Disclaimer
+            // 🟦 Disclaimer
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
@@ -117,7 +120,7 @@ class _SchedulingPageState extends State<SchedulingPage> {
             ),
             const SizedBox(height: 30),
 
-            // Submit button
+            // 🟦 Submit button
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -135,15 +138,23 @@ class _SchedulingPageState extends State<SchedulingPage> {
                   final user = supabase.auth.currentUser;
 
                   try {
-                    // combine date + period into appointment datetime
-                    final appointmentDate = DateTime.parse(
-                      "${dateController.text}T${selectedPeriod == "AM" ? "09:00:00" : "15:00:00"}",
+                    // ✅ Combine date + AM/PM into proper DateTime
+                    final pickedDate = DateTime.parse(dateController.text);
+                    final appointmentDate = DateTime(
+                      pickedDate.year,
+                      pickedDate.month,
+                      pickedDate.day,
+                      selectedPeriod == "AM" ? 9 : 15, // 9AM or 3PM
                     );
 
+                    // ✅ Insert appointment
                     await supabase.from('appointments').insert({
                       'user_id': user!.id,
                       'appointment_date': appointmentDate.toIso8601String(),
                       'status': 'Pending',
+                      // optional details
+                      'service': widget.service?['title'] ?? widget.brand,
+                      'details': widget.size,
                     });
 
                     if (!mounted) return;

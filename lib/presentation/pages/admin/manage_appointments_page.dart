@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ManageAppointmentsPage extends StatefulWidget {
@@ -20,32 +21,32 @@ class _ManageAppointmentsPageState extends State<ManageAppointmentsPage> {
   }
 
   Future<void> _loadAppointments() async {
-    try {
-      final data = await supabase
-          .from('appointments')
-          .select('id, status, appointment_date, created_at, user_id, profiles(email, full_name)')
-          .order('created_at', ascending: false);
+    final data = await supabase
+        .from('appointments')
+        .select()
+        .order('created_at', ascending: false);
 
-      setState(() {
-        appointments = List<Map<String, dynamic>>.from(data);
-        loading = false;
-      });
-    } catch (e) {
-      debugPrint("Error loading appointments: $e");
-      setState(() => loading = false);
-    }
+    setState(() {
+      appointments = List<Map<String, dynamic>>.from(data);
+      loading = false;
+    });
   }
 
-  Future<void> _updateStatus(String id, String newStatus) async {
-    try {
-      await supabase
-          .from('appointments')
-          .update({'status': newStatus, 'updated_at': DateTime.now().toIso8601String()})
-          .eq('id', id);
+  Future<void> _updateStatus(int id, String newStatus) async {
+    await supabase
+        .from('appointments')
+        .update({'status': newStatus})
+        .eq('id', id);
 
-      _loadAppointments(); // refresh list
+    _loadAppointments(); // refresh list
+  }
+
+  String _formatDateTime(String isoString) {
+    try {
+      final dt = DateTime.parse(isoString).toLocal();
+      return DateFormat("MMM d, yyyy – hh:mm a").format(dt);
     } catch (e) {
-      debugPrint("Error updating status: $e");
+      return isoString;
     }
   }
 
@@ -66,14 +67,6 @@ class _ManageAppointmentsPageState extends State<ManageAppointmentsPage> {
                   itemBuilder: (context, index) {
                     final appointment = appointments[index];
 
-                    final profile = appointment["profiles"] ?? {};
-                    final customerName = profile["full_name"] ?? "Unknown";
-                    final customerEmail = profile["email"] ?? "No Email";
-
-                    final appointmentDate = appointment["appointment_date"] != null
-                        ? DateTime.parse(appointment["appointment_date"])
-                        : null;
-
                     return Card(
                       margin: const EdgeInsets.symmetric(vertical: 8),
                       shape: RoundedRectangleBorder(
@@ -85,20 +78,30 @@ class _ManageAppointmentsPageState extends State<ManageAppointmentsPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            // 🟦 Service + Customer
                             Text(
-                              "Customer: $customerName",
+                              "${appointment["service"] ?? 'Unknown'} "
+                              "- ${appointment["user_id"] ?? 'No User'}",
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            Text("Email: $customerEmail"),
-                            if (appointmentDate != null)
+
+                            if (appointment["details"] != null)
+                              Text("Details: ${appointment["details"]}"),
+
+                            const SizedBox(height: 6),
+
+                            // 🟦 Appointment Date
+                            if (appointment["appointment_date"] != null)
                               Text(
-                                "Appointment: ${appointmentDate.toLocal()}",
-                                style: const TextStyle(color: Colors.black87),
+                                "Appointment: ${_formatDateTime(appointment["appointment_date"])}",
                               ),
+
                             const SizedBox(height: 8),
+
+                            // 🟦 Status + Actions
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
