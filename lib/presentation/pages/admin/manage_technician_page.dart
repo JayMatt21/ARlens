@@ -19,7 +19,6 @@ class _ManageTechniciansPageState extends State<ManageTechniciansPage> {
     _loadTechnicians();
   }
 
-  // ------------------ Fetch Technicians ------------------
   Future<void> _loadTechnicians() async {
     setState(() {
       loading = true;
@@ -46,18 +45,14 @@ class _ManageTechniciansPageState extends State<ManageTechniciansPage> {
       );
     }
   }
-
-  // ------------------ Delete Technician (optional) ------------------
   Future<void> _deleteTechnician(String id) async {
     try {
       await supabase.from('users').delete().eq('id', id);
-      _loadTechnicians(); // refresh list
+      _loadTechnicians(); 
     } catch (e) {
       debugPrint("Error deleting technician: $e");
     }
   }
-
-  // ------------------ Build UI ------------------
   @override
   Widget build(BuildContext context) {
     return Scaffold(

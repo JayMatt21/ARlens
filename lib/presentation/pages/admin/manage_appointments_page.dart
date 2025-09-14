@@ -20,14 +20,14 @@ class _ManageAppointmentsPageState extends State<ManageAppointmentsPage> {
     _loadAppointments();
   }
 
-  // ------------------ Supabase Query ------------------
+  
   Future<void> _loadAppointments() async {
     setState(() {
       loading = true;
     });
 
     try {
-      // Fetch appointments with users join
+      
       final data = await supabase
           .from('appointments')
           .select('''
@@ -42,7 +42,6 @@ class _ManageAppointmentsPageState extends State<ManageAppointmentsPage> {
 
       final List<dynamic> appointmentList = data as List<dynamic>;
 
-      // Build full name from users table
       for (var appt in appointmentList) {
         final user = appt['users'];
         final firstName = user?['first_name'] ?? '';
@@ -68,7 +67,6 @@ class _ManageAppointmentsPageState extends State<ManageAppointmentsPage> {
     }
   }
 
-  // ------------------ Update Appointment Status ------------------
   Future<void> _updateStatus(String id, String newStatus) async {
     try {
       await supabase
@@ -76,13 +74,12 @@ class _ManageAppointmentsPageState extends State<ManageAppointmentsPage> {
           .update({'status': newStatus})
           .eq('id', id);
 
-      _loadAppointments(); // refresh list
+      _loadAppointments();
     } catch (e) {
       debugPrint("Error updating status: $e");
     }
   }
 
-  // ------------------ Date Formatting ------------------
   String _formatDateTime(String isoString) {
     try {
       final dt = DateTime.parse(isoString).toLocal();
@@ -92,7 +89,6 @@ class _ManageAppointmentsPageState extends State<ManageAppointmentsPage> {
     }
   }
 
-  // ------------------ Build UI ------------------
   @override
   Widget build(BuildContext context) {
     return Scaffold(
