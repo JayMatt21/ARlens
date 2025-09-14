@@ -136,7 +136,7 @@ class _ProductsPageState extends State<ProductsPage> {
                       child: ElevatedButton(
                         onPressed: (selectedBrand != null && selectedSize != null)
                             ? () {
-                                Navigator.pop(context); // close modal
+                                Navigator.pop(context);
                                 context.push(
                                   '/scheduling',
                                   extra: {
