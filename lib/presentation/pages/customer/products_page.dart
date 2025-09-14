@@ -13,21 +13,21 @@ class _ProductsPageState extends State<ProductsPage> {
     {
       "name": "Window Type Aircon",
       "price": 15000,
-      "image": "assets/images/window_ac.png",
+      "image": "assets/images/Windowtype.jpg",
       "brands": ["LG", "Samsung", "Carrier"],
       "sizes": ["0.5 HP", "1.0 HP", "1.5 HP"]
     },
     {
       "name": "Split Type Aircon",
       "price": 25000,
-      "image": "assets/images/split_ac.png",
+      "image": "assets/images/Splittype.jpg",
       "brands": ["Daikin", "Panasonic", "Midea"],
       "sizes": ["1.0 HP", "1.5 HP", "2.0 HP"]
     },
     {
       "name": "Portable Aircon",
       "price": 18000,
-      "image": "assets/images/portable_ac.png",
+      "image": "assets/images/portable.jpg",
       "brands": ["Kolin", "Sharp", "Midea"],
       "sizes": ["1.0 HP", "1.5 HP"]
     },
