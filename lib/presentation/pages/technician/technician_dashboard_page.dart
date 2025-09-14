@@ -1,12 +1,16 @@
+import 'package:arlens/presentation/pages/technician/area_calculator_page.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:go_router/go_router.dart';
+//ignore:unsued_import
+//import 'package:arlens/presentation/pages/customer/area_calculator_ar_page.dart';
 
 class TechnicianDashboardPage extends StatefulWidget {
   const TechnicianDashboardPage({super.key});
 
   @override
-  State<TechnicianDashboardPage> createState() => _TechnicianDashboardPageState();
+  State<TechnicianDashboardPage> createState() =>
+      _TechnicianDashboardPageState();
 }
 
 class _TechnicianDashboardPageState extends State<TechnicianDashboardPage> {
@@ -20,6 +24,7 @@ class _TechnicianDashboardPageState extends State<TechnicianDashboardPage> {
     _loadAppointments();
   }
 
+
   Future<void> _loadAppointments() async {
     setState(() => loading = true);
     try {
@@ -27,7 +32,9 @@ class _TechnicianDashboardPageState extends State<TechnicianDashboardPage> {
 
       final data = await supabase
           .from('appointments')
-          .select('*, users!appointments_user_id_fkey(first_name, middle_initial, last_name)')
+          .select(
+            '*, users!appointments_user_id_fkey(first_name, middle_initial, last_name)',
+          )
           .eq('status', 'Approved')
           .eq('assigned_technician_id', userId)
           .order('appointment_date', ascending: true);
@@ -37,7 +44,7 @@ class _TechnicianDashboardPageState extends State<TechnicianDashboardPage> {
       for (var appt in appointmentList) {
         final user = appt['users'];
         final fullName = user != null
-            ? "${user['first_name']} ${user['middle_initial'] ?? ''} ${user['last_name']}"
+            ? "${user['first_name']} ${user['middle_initial'] != null && user['middle_initial'] != '' ? user['middle_initial'] + '. ' : ''}${user['last_name']}"
             : 'No Name';
         appt['customer_name'] = fullName;
       }
@@ -49,74 +56,92 @@ class _TechnicianDashboardPageState extends State<TechnicianDashboardPage> {
     } catch (e) {
       debugPrint("Error loading technician appointments: $e");
       setState(() => loading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error loading appointments: $e")),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error loading appointments: $e")),
+        );
+      }
     }
   }
 
+  /// Log report and recommendation for a specific appointment
   Future<void> _logReport(String appointmentId) async {
     final reportController = TextEditingController();
     final recommendationController = TextEditingController();
 
     await showDialog(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text("Log Report"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: reportController,
-                decoration: const InputDecoration(labelText: "Report"),
-              ),
-              TextField(
-                controller: recommendationController,
-                decoration: const InputDecoration(labelText: "Recommended Unit"),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text("Cancel")),
-            ElevatedButton(
-              onPressed: () async {
-                final reportText = reportController.text.trim();
-                final recommendation = recommendationController.text.trim();
-                if (reportText.isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Report cannot be empty")));
-                  return;
-                }
-
-                try {
-                  await supabase.from('reports').insert({
-                    'appointment_id': appointmentId,
-                    'technician_id': supabase.auth.currentUser!.id,
-                    'report_text': reportText,
-                    'recommended_unit': recommendation,
-                  });
-                  ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Report logged!")));
-                  Navigator.pop(context);
-                } catch (e) {
-                  debugPrint("Error logging report: $e");
-                  ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("Error logging report: $e")));
-                }
-              },
-              child: const Text("Submit"),
+      builder: (context) => AlertDialog(
+        title: const Text("Log Report"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: reportController,
+              decoration: const InputDecoration(labelText: "Report"),
+            ),
+            TextField(
+              controller: recommendationController,
+              decoration:
+                  const InputDecoration(labelText: "Recommended Unit"),
             ),
           ],
-        );
-      },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel"),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final reportText = reportController.text.trim();
+              final recommendation = recommendationController.text.trim();
+              if (reportText.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Report cannot be empty")),
+                );
+                return;
+              }
+
+              try {
+                await supabase.from('reports').insert({
+                  'appointment_id': appointmentId,
+                  'technician_id': supabase.auth.currentUser!.id,
+                  'report_text': reportText,
+                  'recommended_unit': recommendation,
+                  'created_at': DateTime.now().toIso8601String(),
+                });
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Report logged!")),
+                );
+                Navigator.pop(context);
+              } catch (e) {
+                debugPrint("Error logging report: $e");
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("Error logging report: $e")),
+                );
+              }
+            },
+            child: const Text("Submit"),
+          ),
+        ],
+      ),
     );
   }
 
+  /// Open AR Calculator
   void _openARCalculator() {
-    context.push('/ar-calculator'); // AR calculator route
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const AreaCalculatorPage()),
+    );
+  }
+
+  /// Logout the technician
+  Future<void> _logout() async {
+    await supabase.auth.signOut();
+    if (!mounted) return;
+    context.go('/'); // Navigate back to splash/login
   }
 
   @override
@@ -130,6 +155,11 @@ class _TechnicianDashboardPageState extends State<TechnicianDashboardPage> {
             icon: const Icon(Icons.camera_alt),
             tooltip: "Open AR Calculator",
             onPressed: _openARCalculator,
+          ),
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: "Logout",
+            onPressed: _logout,
           ),
         ],
       ),
