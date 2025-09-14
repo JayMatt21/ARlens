@@ -69,27 +69,29 @@ class _ManageAppointmentsPageState extends State<ManageAppointmentsPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "${appointment["service"]} - ${appointment["customer"]}",
+                              "${appointment["service"] ?? 'Unknown'} - ${appointment["customer_email"] ?? 'No Email'}",
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
+                            if (appointment["details"] != null)
+                              Text("Details: ${appointment["details"]}"),
                             const SizedBox(height: 6),
-                            Text("Date: ${appointment["date"]}"),
-                            Text("Time: ${appointment["time"]}"),
+                            Text("Date: ${appointment["date"] ?? ''}"),
+                            Text("Time: ${appointment["time"] ?? ''}"),
                             const SizedBox(height: 8),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Chip(
-                                  label: Text(appointment["status"]),
-                                  backgroundColor: appointment["status"] ==
-                                          "Pending"
-                                      ? Colors.orange.shade100
-                                      : appointment["status"] == "Approved"
-                                          ? Colors.green.shade100
-                                          : Colors.red.shade100,
+                                  label: Text(appointment["status"] ?? 'N/A'),
+                                  backgroundColor:
+                                      appointment["status"] == "Pending"
+                                          ? Colors.orange.shade100
+                                          : appointment["status"] == "Approved"
+                                              ? Colors.green.shade100
+                                              : Colors.red.shade100,
                                   labelStyle: TextStyle(
                                     color: appointment["status"] == "Pending"
                                         ? Colors.orange
