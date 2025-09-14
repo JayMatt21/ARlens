@@ -11,7 +11,7 @@ class ManageAppointmentsPage extends StatefulWidget {
 
 class _ManageAppointmentsPageState extends State<ManageAppointmentsPage> {
   final supabase = Supabase.instance.client;
-  List<Map<String, dynamic>> appointments = [];
+  List<dynamic> appointments = [];
   bool loading = true;
 
   @override
@@ -20,31 +20,28 @@ class _ManageAppointmentsPageState extends State<ManageAppointmentsPage> {
     _loadAppointments();
   }
 
+  // ------------------ Supabase Query ------------------
   Future<void> _loadAppointments() async {
     setState(() {
       loading = true;
     });
 
     try {
-      // ✅ Correct join: appointments -> users -> profiles
-      final response = await supabase
+      // Latest SDK: no execute(), no response.error
+      final data = await supabase
           .from('appointments')
-          .select(
-            '''
+          .select('''
             *,
-            users!inner(
-              id,
+            users!appointments_user_id_fkey(
               profiles!inner(
-                id,
                 full_name
               )
             )
-            '''
-          )
+          ''')
           .order('created_at', ascending: false);
 
       setState(() {
-        appointments = List<Map<String, dynamic>>.from(response);
+        appointments = data as List<dynamic>;
         loading = false;
       });
     } catch (error) {
@@ -97,8 +94,15 @@ class _ManageAppointmentsPageState extends State<ManageAppointmentsPage> {
                   itemBuilder: (context, index) {
                     final appointment = appointments[index];
 
-                    // ✅ Properly get customer name from profiles
-                    final customerName = appointment['users']?['profiles']?['full_name'] ?? 'No Name';
+                    
+                    final customerName =
+                        appointment['users']?['profiles']?['full_name'] ?? 'No Name';
+                    final service = appointment["service"] ?? 'Unknown Service';
+                    final details = appointment["details"] ?? '';
+                    final date = appointment["appointment_date"] != null
+                        ? _formatDateTime(appointment["appointment_date"])
+                        : 'No Date';
+                    final status = appointment["status"] ?? 'Pending';
 
                     return Card(
                       margin: const EdgeInsets.symmetric(vertical: 8),
@@ -112,60 +116,48 @@ class _ManageAppointmentsPageState extends State<ManageAppointmentsPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "${appointment["service"] ?? 'Unknown Service'} - $customerName",
+                              "$service - $customerName",
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-
-                            if (appointment["details"] != null)
-                              Text("Details: ${appointment["details"]}"),
-
+                            if (details.isNotEmpty) Text("Details: $details"),
                             const SizedBox(height: 6),
-
-                            if (appointment["appointment_date"] != null)
-                              Text(
-                                "Appointment: ${_formatDateTime(appointment["appointment_date"])}",
-                              ),
-
+                            Text("Appointment: $date"),
                             const SizedBox(height: 8),
-
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Chip(
-                                  label: Text(appointment["status"] ?? 'N/A'),
-                                  backgroundColor:
-                                      appointment["status"] == "Pending"
-                                          ? Colors.orange.shade100
-                                          : appointment["status"] == "Approved"
-                                              ? Colors.green.shade100
-                                              : Colors.red.shade100,
+                                  label: Text(status),
+                                  backgroundColor: status == "Pending"
+                                      ? Colors.orange.shade100
+                                      : status == "Approved"
+                                          ? Colors.green.shade100
+                                          : Colors.red.shade100,
                                   labelStyle: TextStyle(
-                                    color: appointment["status"] == "Pending"
+                                    color: status == "Pending"
                                         ? Colors.orange
-                                        : appointment["status"] == "Approved"
+                                        : status == "Approved"
                                             ? Colors.green
                                             : Colors.red,
                                   ),
                                 ),
-                                if (appointment["status"] == "Pending") ...[
+                                if (status == "Pending") ...[
                                   TextButton.icon(
-                                    onPressed: () => _updateStatus(
-                                        appointment["id"], "Approved"),
-                                    icon: const Icon(Icons.check,
-                                        color: Colors.green),
+                                    onPressed: () =>
+                                        _updateStatus(appointment["id"], "Approved"),
+                                    icon: const Icon(Icons.check, color: Colors.green),
                                     label: const Text("Approve"),
                                   ),
                                   TextButton.icon(
-                                    onPressed: () => _updateStatus(
-                                        appointment["id"], "Rejected"),
-                                    icon: const Icon(Icons.close,
-                                        color: Colors.red),
+                                    onPressed: () =>
+                                        _updateStatus(appointment["id"], "Rejected"),
+                                    icon: const Icon(Icons.close, color: Colors.red),
                                     label: const Text("Reject"),
                                   ),
-                                ]
+                                ],
                               ],
                             ),
                           ],
