@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class ServicesPage extends StatelessWidget {
   const ServicesPage({super.key});
@@ -67,11 +68,7 @@ class ServicesPage extends StatelessWidget {
                       child: ElevatedButton(
                         onPressed: () {
                           Navigator.pop(context); // close modal
-                          Navigator.pushNamed(
-                            context,
-                            '/scheduling',
-                            arguments: service, // pass the service info
-                          );
+                          context.push('/scheduling', extra: service);
                         },
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 14),
