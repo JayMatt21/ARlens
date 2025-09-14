@@ -18,6 +18,19 @@ class _LoginPageState extends State<LoginPage> {
   bool _isLoading = false;
 
   @override
+  void initState() {
+    super.initState();
+
+    // Listen for OAuth login state changes
+    supabase.auth.onAuthStateChange.listen((data) {
+      final event = data.event;
+      if (event == AuthChangeEvent.signedIn) {
+        _routeBasedOnRole(context);
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 241, 170, 165),
@@ -37,8 +50,6 @@ class _LoginPageState extends State<LoginPage> {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 20),
-
-           
                 TextField(
                   controller: emailController,
                   decoration: const InputDecoration(
@@ -49,8 +60,6 @@ class _LoginPageState extends State<LoginPage> {
                   keyboardType: TextInputType.emailAddress,
                 ),
                 const SizedBox(height: 10),
-
-                
                 TextField(
                   controller: passwordController,
                   obscureText: !_isPasswordVisible,
@@ -60,7 +69,9 @@ class _LoginPageState extends State<LoginPage> {
                     fillColor: Colors.white,
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                        _isPasswordVisible
+                            ? Icons.visibility
+                            : Icons.visibility_off,
                       ),
                       onPressed: () {
                         setState(() {
@@ -71,29 +82,22 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 const SizedBox(height: 20),
-
-                
                 _isLoading
                     ? const CircularProgressIndicator(color: Colors.white)
                     : ElevatedButton(
                         onPressed: () => manualLogin(context),
                         child: const Text('Login'),
                       ),
-
-               
                 TextButton(
                   onPressed: () => context.go('/register'),
                   child: const Text('Register now'),
                 ),
-
                 const SizedBox(height: 40),
                 const Text(
                   'Or login with',
                   style: TextStyle(color: Colors.white),
                 ),
                 const SizedBox(height: 20),
-
-                
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -128,20 +132,22 @@ class _LoginPageState extends State<LoginPage> {
     setState(() => _isLoading = true);
 
     try {
-      final res = await supabase.auth.signInWithPassword(email: email, password: password);
+      final res = await supabase.auth.signInWithPassword(
+        email: email,
+        password: password,
+      );
 
       if (res.user == null) {
         showError(context, 'Login failed. Please check your credentials.');
         return;
       }
 
- 
       if (res.user!.emailConfirmedAt == null) {
-        showError(context, 'Please verify your email first by clicking the link sent to your inbox.');
+        showError(context,
+            'Please verify your email first by clicking the link sent to your inbox.');
         return;
       }
 
-   
       await _routeBasedOnRole(context);
     } catch (e) {
       showError(context, 'Login error: $e');
@@ -158,45 +164,40 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     try {
-      final Map<String, dynamic>? response = await supabase
+      // Get user's role_id
+      final Map<String, dynamic>? userRecord = await supabase
           .from('users')
-          .select('role_id, roles(name)')
+          .select('role_id')
           .eq('id', user.id)
           .maybeSingle();
 
-      if (response == null) {
+      if (userRecord == null) {
         showError(context, 'User record not found.');
         context.go('/login');
         return;
       }
 
-      final dynamic rolesField = response['roles'];
-      String? roleName;
-
-      if (rolesField == null) {
-        final dynamic roleId = response['role_id'];
-        if (roleId != null) {
-          final Map<String, dynamic>? roleResp = await supabase
-              .from('roles')
-              .select('name')
-              .eq('id', roleId)
-              .maybeSingle();
-          roleName = roleResp?['name'] as String?;
-        }
-      } else if (rolesField is List && rolesField.isNotEmpty) {
-        final first = rolesField.first;
-        if (first is Map && first['name'] != null) {
-          roleName = first['name'] as String;
-        }
-      } else if (rolesField is Map && rolesField['name'] != null) {
-        roleName = rolesField['name'] as String;
-      }
-
-      if (roleName == null) {
-        showError(context, 'User role not found.');
+      final roleId = userRecord['role_id'] as String?;
+      if (roleId == null) {
+        showError(context, 'Role not assigned.');
         context.go('/login');
         return;
       }
+
+      // Fetch role name
+      final Map<String, dynamic>? roleRecord = await supabase
+          .from('roles')
+          .select('name')
+          .eq('id', roleId)
+          .maybeSingle();
+
+      final roleName = roleRecord?['name'] as String?;
+      if (roleName == null) {
+        showError(context, 'Role not found.');
+        context.go('/login');
+        return;
+      }
+
       switch (roleName.toLowerCase()) {
         case 'customer':
         case 'user':
@@ -235,6 +236,8 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void showError(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
   }
 }
