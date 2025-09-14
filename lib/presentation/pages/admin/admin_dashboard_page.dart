@@ -1,8 +1,57 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'manage_appointments_page.dart';
 
-class AdminDashboardPage extends StatelessWidget {
+class AdminDashboardPage extends StatefulWidget {
   const AdminDashboardPage({super.key});
+
+  @override
+  State<AdminDashboardPage> createState() => _AdminDashboardPageState();
+}
+
+class _AdminDashboardPageState extends State<AdminDashboardPage> {
+  int pendingCount = 0;
+  int approvedCount = 0;
+  int completedCount = 0;
+  List<Map<String, dynamic>> recentAppointments = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchDashboardData();
+  }
+
+  Future<void> _fetchDashboardData() async {
+    final supabase = Supabase.instance.client;
+
+    try {
+      // Get all appointments
+      final response = await supabase
+          .from('appointments')
+          .select()
+          .order('created_at', ascending: false);
+
+      final data = List<Map<String, dynamic>>.from(response);
+
+      // Count statuses
+      setState(() {
+        pendingCount =
+            data.where((item) => item['status'] == 'Pending').length;
+        approvedCount =
+            data.where((item) => item['status'] == 'Approved').length;
+        completedCount =
+            data.where((item) => item['status'] == 'Completed').length;
+
+        // Get top 5 recent
+        recentAppointments = data.take(5).toList();
+      });
+    } catch (error) {
+      debugPrint("Error fetching dashboard data: $error");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error loading dashboard: $error")),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -11,94 +60,106 @@ class AdminDashboardPage extends StatelessWidget {
         title: const Text("Admin Dashboard"),
         backgroundColor: Colors.blueAccent,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 🟦 Summary cards
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildSummaryCard("Pending", "5", Colors.orange),
-                _buildSummaryCard("Approved", "12", Colors.green),
-                _buildSummaryCard("Completed", "8", Colors.blue),
-              ],
-            ),
-            const SizedBox(height: 20),
+      body: RefreshIndicator(
+        onRefresh: _fetchDashboardData,
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 🟦 Summary cards
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _buildSummaryCard("Pending", "$pendingCount", Colors.orange),
+                  _buildSummaryCard("Approved", "$approvedCount", Colors.green),
+                  _buildSummaryCard("Completed", "$completedCount", Colors.blue),
+                ],
+              ),
+              const SizedBox(height: 20),
 
-            // 🟦 Quick Actions
-            const Text(
-              "Quick Actions",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
-            Wrap(
-              spacing: 12,
-              runSpacing: 12,
-              children: [
-                _buildActionButton(
-                  context,
-                  "Manage Appointments",
-                  Icons.event_note,
-                  Colors.deepPurple,
-                  () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const ManageAppointmentsPage(),
+              // 🟦 Quick Actions
+              const Text(
+                "Quick Actions",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                children: [
+                  _buildActionButton(
+                    context,
+                    "Manage Appointments",
+                    Icons.event_note,
+                    Colors.deepPurple,
+                    () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const ManageAppointmentsPage(),
+                        ),
+                      );
+                    },
+                  ),
+                  _buildActionButton(
+                    context,
+                    "Technicians",
+                    Icons.engineering,
+                    Colors.teal,
+                    () {
+                      // TODO: Navigate to technician management
+                    },
+                  ),
+                  _buildActionButton(
+                    context,
+                    "Products",
+                    Icons.inventory,
+                    Colors.indigo,
+                    () {
+                      // TODO: Navigate to products page
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 30),
+
+              // 🟦 Recent activity
+              const Text(
+                "Recent Activity",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 10),
+
+              if (recentAppointments.isEmpty)
+                const Center(
+                  child: Text("No recent appointments"),
+                )
+              else
+                Column(
+                  children: recentAppointments.map((appointment) {
+                    return Card(
+                      child: ListTile(
+                        leading: const Icon(Icons.schedule),
+                        title: Text(
+                          "${appointment['service'] ?? 'Unknown Service'}",
+                          style: const TextStyle(fontWeight: FontWeight.w500),
+                        ),
+                        subtitle: Text("${appointment['status']}"),
+                        trailing: Text(
+                          appointment['date'] ?? '',
+                          style: const TextStyle(color: Colors.black54),
+                        ),
+                        onTap: () {
+                          // TODO: Navigate to appointment details
+                        },
                       ),
                     );
-                  },
+                  }).toList(),
                 ),
-                _buildActionButton(
-                  context,
-                  "Technicians",
-                  Icons.engineering,
-                  Colors.teal,
-                  () {
-                    // TODO: Navigate to technician management
-                  },
-                ),
-                _buildActionButton(
-                  context,
-                  "Products",
-                  Icons.inventory,
-                  Colors.indigo,
-                  () {
-                    // TODO: Navigate to products page
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(height: 30),
-
-            // 🟦 Recent activity (placeholder)
-            const Text(
-              "Recent Activity",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
-            Card(
-              child: ListTile(
-                leading: const Icon(Icons.schedule),
-                title: const Text("Aircon Installation - Juan Dela Cruz"),
-                subtitle: const Text("Pending approval"),
-                trailing: const Text("Sept 14, 2025"),
-                onTap: () {
-                  // Navigate to appointment details
-                },
-              ),
-            ),
-            Card(
-              child: ListTile(
-                leading: const Icon(Icons.schedule),
-                title: const Text("Repair Service - Maria Santos"),
-                subtitle: const Text("Approved"),
-                trailing: const Text("Sept 13, 2025"),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -129,7 +190,6 @@ class AdminDashboardPage extends StatelessWidget {
       ),
     );
   }
-
 
   Widget _buildActionButton(
     BuildContext context,
