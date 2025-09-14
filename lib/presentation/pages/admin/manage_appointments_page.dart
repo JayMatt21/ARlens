@@ -21,24 +21,42 @@ class _ManageAppointmentsPageState extends State<ManageAppointmentsPage> {
   }
 
   Future<void> _loadAppointments() async {
-    final data = await supabase
-        .from('appointments')
-        .select()
-        .order('created_at', ascending: false);
-
     setState(() {
-      appointments = List<Map<String, dynamic>>.from(data);
-      loading = false;
+      loading = true;
     });
+
+    try {
+      final data = await supabase
+          .from('appointments')
+          .select('*, profiles: user_id (full_name)')
+          .order('created_at', ascending: false);
+
+      setState(() {
+        appointments = List<Map<String, dynamic>>.from(data);
+        loading = false;
+      });
+    } catch (e) {
+      debugPrint("Error loading appointments: $e");
+      setState(() => loading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error loading appointments: $e")),
+      );
+    }
   }
 
-  Future<void> _updateStatus(int id, String newStatus) async {
-    await supabase
-        .from('appointments')
-        .update({'status': newStatus})
-        .eq('id', id);
+  Future<void> _updateStatus(String id, String newStatus) async {
+    try {
+      await supabase
+          .from('appointments')
+          .update({'status': newStatus})
+          .eq('id', id);
 
-    _loadAppointments(); // refresh list
+      _loadAppointments();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error updating status: $e")),
+      );
+    }
   }
 
   String _formatDateTime(String isoString) {
@@ -66,6 +84,7 @@ class _ManageAppointmentsPageState extends State<ManageAppointmentsPage> {
                   itemCount: appointments.length,
                   itemBuilder: (context, index) {
                     final appointment = appointments[index];
+                    final customerName = appointment['profiles']?['full_name'] ?? 'No Name';
 
                     return Card(
                       margin: const EdgeInsets.symmetric(vertical: 8),
@@ -78,62 +97,51 @@ class _ManageAppointmentsPageState extends State<ManageAppointmentsPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // 🟦 Service + Customer
                             Text(
-                              "${appointment["service"] ?? 'Unknown'} "
-                              "- ${appointment["user_id"] ?? 'No User'}",
+                              "${appointment['service'] ?? 'Unknown'} - $customerName",
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-
-                            if (appointment["details"] != null)
-                              Text("Details: ${appointment["details"]}"),
-
+                            if (appointment['details'] != null)
+                              Text("Details: ${appointment['details']}"),
                             const SizedBox(height: 6),
-
-                            // 🟦 Appointment Date
-                            if (appointment["appointment_date"] != null)
+                            if (appointment['appointment_date'] != null)
                               Text(
-                                "Appointment: ${_formatDateTime(appointment["appointment_date"])}",
+                                "Appointment: ${_formatDateTime(appointment['appointment_date'])}",
                               ),
-
                             const SizedBox(height: 8),
-
-                            // 🟦 Status + Actions
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Chip(
-                                  label: Text(appointment["status"] ?? 'N/A'),
+                                  label: Text(appointment['status'] ?? 'N/A'),
                                   backgroundColor:
-                                      appointment["status"] == "Pending"
+                                      appointment['status'] == "Pending"
                                           ? Colors.orange.shade100
-                                          : appointment["status"] == "Approved"
+                                          : appointment['status'] == "Approved"
                                               ? Colors.green.shade100
                                               : Colors.red.shade100,
                                   labelStyle: TextStyle(
-                                    color: appointment["status"] == "Pending"
+                                    color: appointment['status'] == "Pending"
                                         ? Colors.orange
-                                        : appointment["status"] == "Approved"
+                                        : appointment['status'] == "Approved"
                                             ? Colors.green
                                             : Colors.red,
                                   ),
                                 ),
-                                if (appointment["status"] == "Pending") ...[
+                                if (appointment['status'] == "Pending") ...[
                                   TextButton.icon(
-                                    onPressed: () => _updateStatus(
-                                        appointment["id"], "Approved"),
-                                    icon: const Icon(Icons.check,
-                                        color: Colors.green),
+                                    onPressed: () =>
+                                        _updateStatus(appointment['id'], "Approved"),
+                                    icon: const Icon(Icons.check, color: Colors.green),
                                     label: const Text("Approve"),
                                   ),
                                   TextButton.icon(
-                                    onPressed: () => _updateStatus(
-                                        appointment["id"], "Rejected"),
-                                    icon: const Icon(Icons.close,
-                                        color: Colors.red),
+                                    onPressed: () =>
+                                        _updateStatus(appointment['id'], "Rejected"),
+                                    icon: const Icon(Icons.close, color: Colors.red),
                                     label: const Text("Reject"),
                                   ),
                                 ]
