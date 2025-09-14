@@ -2,7 +2,15 @@ import 'package:flutter/material.dart';
 
 class SchedulingPage extends StatefulWidget {
   final Map<String, dynamic>? service;
-  const SchedulingPage({super.key, this.service});
+  final String? brand;
+  final String? size;
+
+  const SchedulingPage({
+    super.key,
+    this.service,
+    this.brand,
+    this.size,
+  });
 
   @override
   State<SchedulingPage> createState() => _SchedulingPageState();
@@ -18,22 +26,36 @@ class _SchedulingPageState extends State<SchedulingPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Schedule - ${service['title'] ?? ''}"),
+        title: Text("Schedule - ${service['title'] ?? widget.brand ?? 'Aircon'}"),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              service['title'] ?? '',
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              service['desc'] ?? '',
-              style: const TextStyle(fontSize: 16, color: Colors.black54),
-            ),
+            // Product / Service Info
+            if (service.isNotEmpty) ...[
+              Text(
+                service['title'] ?? '',
+                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                service['desc'] ?? '',
+                style: const TextStyle(fontSize: 16, color: Colors.black54),
+              ),
+            ] else ...[
+              Text(
+                "${widget.brand} - ${widget.size}",
+                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                "Selected Aircon: ${widget.brand} (${widget.size})",
+                style: const TextStyle(fontSize: 16, color: Colors.black54),
+              ),
+            ],
+
             const SizedBox(height: 20),
 
             // Date input
@@ -111,8 +133,8 @@ class _SchedulingPageState extends State<SchedulingPage> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(
-                        "Your request for ${service['title']} on "
-                        "${dateController.text} (${selectedPeriod!}) "
+                        "Your request for ${service['title'] ?? widget.brand} "
+                        "on ${dateController.text} (${selectedPeriod!}) "
                         "is waiting for Admin confirmation. "
                         "Please wait for a call from our team.",
                       ),
