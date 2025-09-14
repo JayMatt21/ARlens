@@ -135,27 +135,26 @@ class _SchedulingPageState extends State<SchedulingPage> {
                   final user = supabase.auth.currentUser;
 
                   try {
+                    // combine date + period into appointment datetime
+                    final appointmentDate = DateTime.parse(
+                      "${dateController.text}T${selectedPeriod == "AM" ? "09:00:00" : "15:00:00"}",
+                    );
+
                     await supabase.from('appointments').insert({
-                      'customer_id': user?.id,
-                      'customer_email': user?.email,
-                      'service': widget.service != null
-                          ? widget.service!['title']
-                          : widget.brand,
-                      'details': widget.size,
-                      'date': dateController.text,
-                      'time': selectedPeriod,
+                      'user_id': user!.id,
+                      'appointment_date': appointmentDate.toIso8601String(),
                       'status': 'Pending',
-                      'created_at': DateTime.now().toIso8601String(),
                     });
 
                     if (!mounted) return;
 
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
+                      SnackBar(
                         content: Text(
-                          "Your request has been submitted. Waiting for Admin confirmation.",
+                          "Your request on ${dateController.text} ($selectedPeriod) "
+                          "has been submitted. Waiting for Admin confirmation.",
                         ),
-                        duration: Duration(seconds: 5),
+                        duration: const Duration(seconds: 5),
                       ),
                     );
 
