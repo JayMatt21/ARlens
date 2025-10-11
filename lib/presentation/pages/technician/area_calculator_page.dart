@@ -143,10 +143,13 @@ class _AreaCalculatorPhotoPageState extends State<AreaCalculatorPhotoPage> {
         title: const Text("AC Recommendation"),
         content: Text("Area: ${area.toStringAsFixed(2)} m²\n$suggestion"),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("OK"),
-          )
+    TextButton(
+            onPressed: () {
+              Navigator.pop(context); // Close dialog
+              Navigator.pushNamed(context, '/products'); // Route to products page
+            },
+            child: const Text("View Products"),
+          ),
         ],
       ),
     );

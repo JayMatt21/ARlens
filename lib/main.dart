@@ -15,7 +15,6 @@ import 'presentation/pages/customer/schedulling_page.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Supabase
   await Supabase.initialize(
     url: 'https://dnjfkyokmqqrpazprwwt.supabase.co',
     anonKey:
