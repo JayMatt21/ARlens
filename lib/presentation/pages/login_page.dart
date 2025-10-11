@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -21,7 +22,6 @@ class _LoginPageState extends State<LoginPage> {
   void initState() {
     super.initState();
 
-    // Listen for OAuth login state changes
     supabase.auth.onAuthStateChange.listen((data) {
       final event = data.event;
       if (event == AuthChangeEvent.signedIn) {
@@ -92,6 +92,13 @@ class _LoginPageState extends State<LoginPage> {
                   onPressed: () => context.go('/register'),
                   child: const Text('Register now'),
                 ),
+                TextButton(
+                  onPressed: () => _showForgotPasswordDialog(),
+                  child: const Text(
+                    'Forgot Password?',
+                    style: TextStyle(decoration: TextDecoration.underline),
+                  ),
+                ),
                 const SizedBox(height: 40),
                 const Text(
                   'Or login with',
@@ -118,6 +125,54 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
     );
+  }
+
+  void _showForgotPasswordDialog() {
+    final forgotEmailController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Reset Password'),
+        content: TextField(
+          controller: forgotEmailController,
+          decoration: const InputDecoration(
+            labelText: 'Enter your registered email',
+          ),
+          keyboardType: TextInputType.emailAddress,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              final email = forgotEmailController.text.trim();
+              if (email.isEmpty) {
+                showError(context, 'Please enter your email.');
+                return;
+              }
+              Navigator.pop(context);
+              _sendPasswordResetEmail(email);
+            },
+            child: const Text('Send'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _sendPasswordResetEmail(String email) async {
+    setState(() => _isLoading = true);
+    try {
+      await supabase.auth.resetPasswordForEmail(email);
+      showError(context, 'Password reset email sent! Please check your inbox.');
+    } catch (e) {
+      showError(context, 'Failed to send reset email: $e');
+    } finally {
+      setState(() => _isLoading = false);
+    }
   }
 
   void manualLogin(BuildContext context) async {
@@ -164,7 +219,6 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     try {
-      // Get user's role_id
       final Map<String, dynamic>? userRecord = await supabase
           .from('users')
           .select('role_id')
@@ -184,7 +238,6 @@ class _LoginPageState extends State<LoginPage> {
         return;
       }
 
-      // Fetch role name
       final Map<String, dynamic>? roleRecord = await supabase
           .from('roles')
           .select('name')

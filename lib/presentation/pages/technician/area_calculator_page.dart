@@ -2,6 +2,29 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
+void main() {
+  runApp(const MyApp());
+}
+
+// Main App with named routes
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Photo Area Calculator',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      // Register routes here
+      routes: {
+        '/': (context) => const AreaCalculatorPhotoPage(),
+        '/products': (context) => const ProductsPage(),
+      },
+      initialRoute: '/',
+    );
+  }
+}
+
 class AreaCalculatorPhotoPage extends StatefulWidget {
   const AreaCalculatorPhotoPage({super.key});
 
@@ -13,13 +36,11 @@ class _AreaCalculatorPhotoPageState extends State<AreaCalculatorPhotoPage> {
   File? _image;
   final picker = ImagePicker();
 
-  // List of 2D points tapped on photo
   List<Offset> points = [];
   double calculatedArea = 0.0;
 
-  // User-input reference object length in meters
   double referenceLengthMeters = 1.0;
-  double referenceLengthPixels = 100.0; // default, updated after user taps reference
+  double referenceLengthPixels = 100.0; // default for scaling
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +58,6 @@ class _AreaCalculatorPhotoPageState extends State<AreaCalculatorPhotoPage> {
                   )
                 : GestureDetector(
                     onTapDown: (details) {
-                      // Add point relative to image widget
                       setState(() {
                         points.add(details.localPosition);
                         if (points.length >= 3) {
@@ -48,7 +68,6 @@ class _AreaCalculatorPhotoPageState extends State<AreaCalculatorPhotoPage> {
                     child: Stack(
                       children: [
                         Image.file(_image!, fit: BoxFit.contain, width: double.infinity),
-                        // Draw points
                         ...points.map(
                           (p) => Positioned(
                             left: p.dx - 5,
@@ -110,18 +129,15 @@ class _AreaCalculatorPhotoPageState extends State<AreaCalculatorPhotoPage> {
     }
   }
 
-  // Calculate area using Shoelace formula, scaled by reference
+  // Shoelace formula for area calculation
   double calculateArea(List<Offset> pts) {
     if (pts.length < 3) return 0.0;
-
     double sum = 0.0;
     for (int i = 0; i < pts.length; i++) {
       final p1 = pts[i];
       final p2 = pts[(i + 1) % pts.length];
       sum += (p1.dx * p2.dy) - (p2.dx * p1.dy);
     }
-
-    // Convert pixel area to real area in m²
     double scale = referenceLengthMeters / referenceLengthPixels;
     double areaInMeters2 = (sum.abs() / 2.0) * (scale * scale);
     return areaInMeters2;
@@ -143,14 +159,38 @@ class _AreaCalculatorPhotoPageState extends State<AreaCalculatorPhotoPage> {
         title: const Text("AC Recommendation"),
         content: Text("Area: ${area.toStringAsFixed(2)} m²\n$suggestion"),
         actions: [
-    TextButton(
+          TextButton(
             onPressed: () {
-              Navigator.pop(context); // Close dialog
-              Navigator.pushNamed(context, '/products'); // Route to products page
+              Navigator.pop(context);
+            },
+            child: const Text("OK"),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context); 
+              Navigator.pushNamed(context, '/products');
             },
             child: const Text("View Products"),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// Sample ProductsPage Widget
+class ProductsPage extends StatelessWidget {
+  const ProductsPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("Products")),
+      body: const Center(
+        child: Text(
+          "List of AC products will be shown here.",
+          style: TextStyle(fontSize: 18),
+        ),
       ),
     );
   }
