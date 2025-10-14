@@ -84,7 +84,7 @@ class _SchedulingPageState extends State<SchedulingPage> {
 
             // 🟦 AM/PM Dropdown
             DropdownButtonFormField<String>(
-              value: selectedPeriod,
+              initialValue: selectedPeriod,
               items: const [
                 DropdownMenuItem(value: "AM", child: Text("AM")),
                 DropdownMenuItem(value: "PM", child: Text("PM")),
