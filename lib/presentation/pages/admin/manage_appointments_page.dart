@@ -12,8 +12,12 @@ class ManageAppointmentsPage extends StatefulWidget {
 class _ManageAppointmentsPageState extends State<ManageAppointmentsPage> {
   final supabase = Supabase.instance.client;
   List<dynamic> appointments = [];
+  List<dynamic> technicians = [];
   bool loading = true;
-  List<dynamic> technicians = []; // For technician assignment
+  Set<int> expandedIndexes = {};
+  Map<int, TextEditingController> _dateControllers = {};
+  Map<int, DateTime?> _pendingDates = {};
+  Map<int, String?> _selectedTechnicians = {};
 
   @override
   void initState() {
@@ -22,191 +26,42 @@ class _ManageAppointmentsPageState extends State<ManageAppointmentsPage> {
     _loadTechnicians();
   }
 
+    Future<void> _loadTechnicians() async {
+    try {
+      final data = await supabase
+          .from('technicians')
+          .select('id, first_name, last_name');
+
+      setState(() {
+        technicians = (data as List<dynamic>? ?? []);
+      });
+    } catch (error) {
+      setState(() {
+        technicians = [];
+      });
+    }
+  }
+
   Future<void> _loadAppointments() async {
-    setState(() {
-      loading = true;
-    });
+    setState(() { loading = true; });
     try {
       final data = await supabase
           .from('appointments')
-          .select('''
-            *,
-            users!appointments_user_id_fkey(
-              first_name,
-              middle_initial,
-              last_name
-            ),
-            technician:assigned_technician_id(
-              first_name, last_name
-            )
-          ''')
-          .order('created_at', ascending: false);
-      final List<dynamic> appointmentList = data as List<dynamic>;
-      for (var appt in appointmentList) {
-        final user = appt['users'];
-        final firstName = user?['first_name'] ?? '';
-        final middleInitial = user?['middle_initial'] ?? '';
-        final lastName = user?['last_name'] ?? '';
-        final fullName = '$firstName ${middleInitial.isNotEmpty ? middleInitial + '. ' : ''}$lastName';
-        appt['customer_name'] = fullName.isNotEmpty ? fullName : 'No Name';
-        // Technician assigned name (optional)
-        if (appt['technician'] != null) {
-          final t = appt['technician'];
-          appt['technician_name'] = "${t?['first_name'] ?? ''} ${t?['last_name'] ?? ''}";
-        }
-      }
+          .select('*, technician:technicians(id, first_name, last_name)')
+          .order('appointment_date', ascending: false);
+
       setState(() {
-        appointments = appointmentList;
+        appointments = (data as List<dynamic>? ?? []);
         loading = false;
       });
     } catch (error) {
       setState(() {
+        appointments = [];
         loading = false;
       });
-      debugPrint("Error loading appointments: $error");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error loading appointments: $error")),
-      );
     }
   }
 
-  Future<void> _loadTechnicians() async {
-    // Load all users with technician role
-    try {
-      final techs = await supabase
-          .from('users')
-          .select('id, first_name, last_name')
-          .eq('role', 'technician'); // adjust if you use role_id
-      setState(() {
-        technicians = techs as List<dynamic>;
-      });
-    } catch (e) {
-      debugPrint("Error loading technicians: $e");
-    }
-  }
-
-  Future<void> _updateStatus(String id, String newStatus) async {
-    try {
-      await supabase
-          .from('appointments')
-          .update({'status': newStatus})
-          .eq('id', id);
-      _loadAppointments();
-    } catch (e) {
-      debugPrint("Error updating status: $e");
-    }
-  }
-
-  Future<void> _suggestSchedule(String apptId) async {
-    DateTime? newDate;
-    final controller = TextEditingController();
-    await showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFFF9FBFC),
-        title: const Text("Suggest New Schedule", style: TextStyle(color: Color(0xFF1976D2))),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: controller,
-              readOnly: true,
-              decoration: const InputDecoration(labelText: "Select New Date & Time"),
-              onTap: () async {
-                final picked = await showDatePicker(
-                  context: context,
-                  initialDate: DateTime.now().add(const Duration(days: 1)),
-                  firstDate: DateTime.now(),
-                  lastDate: DateTime.now().add(const Duration(days: 365)),
-                );
-                if (picked != null) {
-                  final time = await showTimePicker(
-                    context: context,
-                    initialTime: TimeOfDay(hour: 9, minute: 0),
-                  );
-                  if (time != null) {
-                    final full = picked.add(Duration(hours: time.hour, minutes: time.minute));
-                    controller.text = DateFormat("yyyy-MM-dd HH:mm").format(full);
-                    newDate = full;
-                  }
-                }
-              },
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text("Cancel")),
-          ElevatedButton(
-            onPressed: () async {
-              if (newDate != null) {
-                await supabase
-                    .from('appointments')
-                    .update({'appointment_date': newDate!.toIso8601String(), 'status': 'Rescheduled'})
-                    .eq('id', apptId);
-                Navigator.pop(ctx);
-                _loadAppointments();
-              }
-            },
-            child: const Text("Submit"),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _assignTechnician(String apptId, String? currentTechId) async {
-    String? selectedTechId = currentTechId;
-    await showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFFF9FBFC),
-        title: const Text("Assign Technician", style: TextStyle(color: Color(0xFF1976D2))),
-        content: DropdownButtonFormField<String>(
-          isExpanded: true,
-          decoration: const InputDecoration(
-            labelText: "Technician",
-          ),
-          value: selectedTechId,
-          items: [
-            const DropdownMenuItem(
-              value: null,
-              child: Text("Unassigned"),
-            ),
-            ...technicians.map((t) {
-              return DropdownMenuItem<String>(
-                value: t['id'] as String,
-                child: Text("${t['first_name']} ${t['last_name']}"),
-              );
-            }).toList(),
-          ],
-          onChanged: (String? value) => selectedTechId = value,
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text("Cancel")),
-          ElevatedButton(
-            onPressed: () async {
-              await supabase
-                  .from('appointments')
-                  .update({'assigned_technician_id': selectedTechId})
-                  .eq('id', apptId);
-              Navigator.pop(ctx);
-              _loadAppointments();
-            },
-            child: const Text("Save"),
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _formatDateTime(String isoString) {
-    try {
-      final dt = DateTime.parse(isoString).toLocal();
-      return DateFormat("MMM d, yyyy – hh:mm a").format(dt);
-    } catch (e) {
-      return isoString;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -243,6 +98,9 @@ class _ManageAppointmentsPageState extends State<ManageAppointmentsPage> {
                       final status = appointment["status"] ?? 'Pending';
                       final assignedTech = appointment['technician_name'];
 
+                      _dateControllers[index] ??= TextEditingController();
+                      _selectedTechnicians[index] ??= appointment["assigned_technician_id"];
+
                       return Card(
                         margin: const EdgeInsets.symmetric(vertical: 8),
                         shape: RoundedRectangleBorder(
@@ -270,8 +128,12 @@ class _ManageAppointmentsPageState extends State<ManageAppointmentsPage> {
                               if (assignedTech != null)
                                 Text("Technician: $assignedTech", style: const TextStyle(color: Color(0xFF566573))),
                               const SizedBox(height: 10),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              // Prevent OVERFLOW! Wrap for all actions (Chip and buttons)
+                              Wrap(
+                                spacing: 8,
+                                runSpacing: 6,
+                                alignment: WrapAlignment.start,
+                                crossAxisAlignment: WrapCrossAlignment.center,
                                 children: [
                                   Chip(
                                     label: Text(status),
@@ -292,35 +154,162 @@ class _ManageAppointmentsPageState extends State<ManageAppointmentsPage> {
                                                   : Colors.grey,
                                     ),
                                   ),
-                                  Wrap(
-                                    spacing: 8,
-                                    children: [
-                                      TextButton.icon(
-                                        icon: const Icon(Icons.calendar_today, color: Color(0xFF1976D2), size: 18),
-                                        label: const Text("Suggest New Schedule", style: TextStyle(color: Color(0xFF1976D2))),
-                                        onPressed: () => _suggestSchedule(appointment["id"]),
-                                      ),
-                                      TextButton.icon(
-                                        icon: const Icon(Icons.handyman, color: Colors.teal, size: 18),
-                                        label: const Text("Assign Technician", style: TextStyle(color: Colors.teal)),
-                                        onPressed: () => _assignTechnician(appointment["id"], appointment["assigned_technician_id"]),
-                                      ),
-                                      if (status == "Pending") ...[
-                                        TextButton.icon(
-                                          onPressed: () => _updateStatus(appointment["id"], "Approved"),
-                                          icon: const Icon(Icons.check, color: Colors.green, size: 18),
-                                          label: const Text("Approve", style: TextStyle(color: Colors.green)),
-                                        ),
-                                        TextButton.icon(
-                                          onPressed: () => _updateStatus(appointment["id"], "Rejected"),
-                                          icon: const Icon(Icons.close, color: Colors.red, size: 18),
-                                          label: const Text("Reject", style: TextStyle(color: Colors.red)),
-                                        ),
-                                      ],
-                                    ],
+                                  TextButton.icon(
+                                    icon: const Icon(Icons.calendar_today, color: Color(0xFF1976D2), size: 18),
+                                    label: const Text("Suggest New Schedule", style: TextStyle(color: Color(0xFF1976D2))),
+                                    onPressed: () {
+                                      setState(() {
+                                        if (expandedIndexes.contains(index)) {
+                                          expandedIndexes.remove(index);
+                                        } else {
+                                          expandedIndexes.add(index);
+                                        }
+                                      });
+                                    },
                                   ),
+                                  TextButton.icon(
+                                    icon: const Icon(Icons.handyman, color: Colors.teal, size: 18),
+                                    label: const Text("Assign Technician", style: TextStyle(color: Colors.teal)),
+                                    onPressed: () {
+                                      setState(() {
+                                        if (expandedIndexes.contains(index + 1000)) {
+                                          expandedIndexes.remove(index + 1000);
+                                        } else {
+                                          expandedIndexes.add(index + 1000);
+                                        }
+                                      });
+                                    },
+                                  ),
+                                  if (status == "Pending") ...[
+                                    TextButton.icon(
+                                      onPressed: () => _updateStatus(appointment["id"], "Approved"),
+                                      icon: const Icon(Icons.check, color: Colors.green, size: 18),
+                                      label: const Text("Approve", style: TextStyle(color: Colors.green)),
+                                    ),
+                                    TextButton.icon(
+                                      onPressed: () => _updateStatus(appointment["id"], "Rejected"),
+                                      icon: const Icon(Icons.close, color: Colors.red, size: 18),
+                                      label: const Text("Reject", style: TextStyle(color: Colors.red)),
+                                    ),
+                                  ],
                                 ],
                               ),
+                              // Inline Suggest New Schedule
+                              if (expandedIndexes.contains(index))
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 6),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      TextField(
+                                        controller: _dateControllers[index],
+                                        readOnly: true,
+                                        decoration: const InputDecoration(
+                                            labelText: "Proposed New Date & Time",
+                                            fillColor: Color(0xFFE8F0FE),
+                                            filled: true,
+                                            border: OutlineInputBorder()
+                                        ),
+                                        onTap: () async {
+                                          final picked = await showDatePicker(
+                                            context: context,
+                                            initialDate: DateTime.now().add(const Duration(days: 1)),
+                                            firstDate: DateTime.now(),
+                                            lastDate: DateTime.now().add(const Duration(days: 365)),
+                                          );
+                                          if (picked != null) {
+                                            final time = await showTimePicker(
+                                              context: context,
+                                              initialTime: const TimeOfDay(hour: 9, minute: 0),
+                                            );
+                                            if (time != null) {
+                                              final full = picked.add(
+                                                Duration(hours: time.hour, minutes: time.minute));
+                                              _dateControllers[index]!.text = DateFormat("yyyy-MM-dd HH:mm").format(full);
+                                              _pendingDates[index] = full;
+                                            }
+                                          }
+                                        },
+                                      ),
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        children: [
+                                          TextButton(
+                                            onPressed: () {
+                                              setState(() {
+                                                expandedIndexes.remove(index);
+                                              });
+                                            },
+                                            child: const Text("Cancel", style: TextStyle(color: Colors.grey)),
+                                          ),
+                                          ElevatedButton(
+                                            style: ElevatedButton.styleFrom(
+                                                backgroundColor: const Color(0xFF1976D2)
+                                            ),
+                                            onPressed: () => _saveReschedule(index, appointment["id"]),
+                                            child: const Text("Submit"),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              // Inline Assign Technician
+                              if (expandedIndexes.contains(index + 1000))
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 6),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      DropdownButtonFormField<String>(
+                                        decoration: const InputDecoration(
+                                          labelText: "Technician",
+                                          fillColor: Color(0xFFE8F0FE),
+                                          filled: true,
+                                          border: OutlineInputBorder(),
+                                        ),
+                                        value: _selectedTechnicians[index],
+                                        items: [
+                                          const DropdownMenuItem(
+                                            value: null,
+                                            child: Text("Unassigned"),
+                                          ),
+                                          ...technicians.map((t) {
+                                            return DropdownMenuItem<String>(
+                                              value: t['id'] as String,
+                                              child: Text("${t['first_name']} ${t['last_name']}"),
+                                            );
+                                          }).toList(),
+                                        ],
+                                        onChanged: (String? value) {
+                                          setState(() {
+                                            _selectedTechnicians[index] = value;
+                                          });
+                                        },
+                                      ),
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        children: [
+                                          TextButton(
+                                            onPressed: () {
+                                              setState(() {
+                                                expandedIndexes.remove(index + 1000);
+                                              });
+                                            },
+                                            child: const Text("Cancel", style: TextStyle(color: Colors.grey)),
+                                          ),
+                                          ElevatedButton(
+                                            style: ElevatedButton.styleFrom(
+                                                backgroundColor: Colors.teal
+                                            ),
+                                            onPressed: () => _saveTechnicianAssign(index, appointment["id"]),
+                                            child: const Text("Save"),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
                             ],
                           ),
                         ),
@@ -329,5 +318,89 @@ class _ManageAppointmentsPageState extends State<ManageAppointmentsPage> {
                   ),
       ),
     );
+  }
+  // ...all helper methods from before (_saveReschedule, _saveTechnicianAssign, _formatDateTime, etc)...
+
+  Future<void> _saveTechnicianAssign(int index, dynamic appointmentId) async {
+    final technicianId = _selectedTechnicians[index];
+    try {
+      await supabase
+          .from('appointments')
+          .update({'assigned_technician_id': technicianId})
+          .eq('id', appointmentId)
+          .select();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Technician assigned successfully!'))
+      );
+      setState(() {
+        expandedIndexes.remove(index + 1000);
+      });
+      await _loadAppointments();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to assign technician: $e'))
+      );
+    }
+  }
+
+  Future<void> _updateStatus(dynamic appointmentId, String status) async {
+    try {
+      await supabase
+          .from('appointments')
+          .update({'status': status})
+          .eq('id', appointmentId)
+          .select();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Appointment status updated to $status!'))
+      );
+      await _loadAppointments();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to update status: $e'))
+      );
+    }
+  }
+
+  String _formatDateTime(dynamic dateTime) {
+    if (dateTime == null) return 'No Date';
+    DateTime dt;
+    if (dateTime is String) {
+      dt = DateTime.parse(dateTime);
+    } else if (dateTime is DateTime) {
+      dt = dateTime;
+    } else {
+      return dateTime.toString();
+    }
+    return DateFormat('yyyy-MM-dd HH:mm').format(dt);
+  }
+
+  Future<void> _saveReschedule(int index, dynamic appointmentId) async {
+    final newDate = _pendingDates[index];
+    if (newDate == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select a new date and time.'))
+      );
+      return;
+    }
+    try {
+      await supabase
+          .from('appointments')
+          .update({'appointment_date': newDate.toIso8601String()})
+          .eq('id', appointmentId)
+          .select();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Appointment rescheduled successfully!'))
+      );
+      setState(() {
+        expandedIndexes.remove(index);
+        _dateControllers[index]?.clear();
+        _pendingDates[index] = null;
+      });
+      await _loadAppointments();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to reschedule appointment: $e'))
+      );
+    }
   }
 }
