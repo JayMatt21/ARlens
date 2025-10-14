@@ -7,7 +7,6 @@ import 'package:go_router/go_router.dart';
 
 class AdminDashboardPage extends StatefulWidget {
   const AdminDashboardPage({super.key});
-
   @override
   State<AdminDashboardPage> createState() => _AdminDashboardPageState();
 }
@@ -97,7 +96,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       appBar: AppBar(
         title: const Text(
           'Admin Dashboard',
-          style: TextStyle(color: Color(0xFF0D3B66), fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: Color(0xFF0D3B66), fontWeight: FontWeight.bold, fontSize: 22),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -132,7 +132,6 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Summary Cards
                       Row(
                         children: [
                           _buildSummaryCard('Pending', pendingCount, Colors.orange),
@@ -146,10 +145,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                       const Text(
                         'Quick Actions',
                         style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF154360),
-                        ),
+                          fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF154360)),
                       ),
                       const SizedBox(height: 12),
                       Wrap(
@@ -198,10 +194,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                       const Text(
                         'Recent Activity',
                         style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF154360),
-                        ),
+                          fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF154360)),
                       ),
                       const SizedBox(height: 12),
                       if (recentAppointments.isEmpty)
@@ -226,7 +219,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                                 title: Text(
                                   '$service - $customerName',
                                   style: const TextStyle(
-                                    fontWeight: FontWeight.w500,
+                                    fontWeight: FontWeight.w600,
                                     color: Color(0xFF0D3B66),
                                   ),
                                 ),
@@ -238,9 +231,6 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                                   date,
                                   style: const TextStyle(color: Color(0xFF566573)),
                                 ),
-                                onTap: () {
-                                  // TODO: navigate to appointment details
-                                },
                               ),
                             );
                           }).toList(),
@@ -256,7 +246,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   Widget _buildSummaryCard(String title, int count, Color color) {
     return Expanded(
       child: Card(
-        color: color.withOpacity(0.08),
+        color: color.withOpacity(0.09),
         elevation: 2,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         child: Padding(
@@ -265,20 +255,10 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
             children: [
               Text(
                 '$count',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: color,
-                ),
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: color),
               ),
               const SizedBox(height: 4),
-              Text(
-                title,
-                style: TextStyle(
-                  color: color,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
+              Text(title, style: TextStyle(color: color, fontWeight: FontWeight.w500)),
             ],
           ),
         ),
@@ -287,19 +267,14 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   }
 
   Widget _buildActionButton(
-    BuildContext context,
-    String label,
-    IconData icon,
-    Color color,
-    VoidCallback onTap,
-  ) {
+      BuildContext context, String label, IconData icon, Color color, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
         width: 150,
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.11),
+          color: color.withOpacity(0.13),
           borderRadius: BorderRadius.circular(14),
           boxShadow: [
             BoxShadow(
@@ -314,11 +289,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
           children: [
             Icon(icon, size: 32, color: color),
             const SizedBox(height: 8),
-            Text(
-              label,
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: color),
-              textAlign: TextAlign.center,
-            ),
+            Text(label,
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: color),
+                textAlign: TextAlign.center),
           ],
         ),
       ),
