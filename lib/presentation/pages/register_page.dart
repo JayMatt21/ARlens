@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -10,6 +10,7 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
+  final supabase = Supabase.instance.client;
   final TextEditingController emailController = TextEditingController();
   final TextEditingController firstNameController = TextEditingController();
   final TextEditingController middleInitialController = TextEditingController();
@@ -19,7 +20,6 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController = TextEditingController();
 
-  final supabase = Supabase.instance.client;
   bool _isLoading = false;
   bool _showPassword = false;
   bool _showConfirmPassword = false;
@@ -27,72 +27,105 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 241, 170, 165),
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'Register New Account',
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: Colors.white),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 20),
-
-              buildFieldBox(firstNameController, 'First Name'),
-              const SizedBox(height: 10),
-              buildFieldBox(middleInitialController, 'Middle Initial'),
-              const SizedBox(height: 10),
-              buildFieldBox(lastNameController, 'Last Name'),
-              const SizedBox(height: 10),
-              buildFieldBox(addressController, 'Address'),
-              const SizedBox(height: 10),
-              buildFieldBox(mobileController, 'Mobile Number', keyboardType: TextInputType.phone),
-              const SizedBox(height: 10),
-              buildFieldBox(emailController, 'Email', keyboardType: TextInputType.emailAddress),
-              const SizedBox(height: 10),
-              buildPasswordBox(passwordController, 'Password', _showPassword, () {
-                setState(() => _showPassword = !_showPassword);
-              }),
-              const SizedBox(height: 10),
-              buildPasswordBox(confirmPasswordController, 'Confirm Password', _showConfirmPassword, () {
-                setState(() => _showConfirmPassword = !_showConfirmPassword);
-              }),
-
-              const SizedBox(height: 20),
-              _isLoading
-                  ? const CircularProgressIndicator(color: Colors.white)
-                  : ElevatedButton(
-                      onPressed: () => registerUser(context),
-                      child: const Text('Register'),
-                    ),
-              const SizedBox(height: 20),
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text(
-                    "Already have an account? ",
-                    style: TextStyle(color: Colors.white),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Color(0xFFD0E8FF),
+              Color(0xFF9BBDDF),
+              Color(0xFFF9FBFC),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 36),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  'Register New Account',
+                  style: TextStyle(
+                    color: Color(0xFF0D3B66),
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.5,
                   ),
-                  GestureDetector(
-                    onTap: () {
-                      context.go('/login');
-                    },
-                    child: const Text(
-                      "Login here",
-                      style: TextStyle(
-                        color: Colors.blueAccent,
-                        fontWeight: FontWeight.bold,
-                        decoration: TextDecoration.underline,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 30),
+                buildFieldBox(firstNameController, 'First Name'),
+                const SizedBox(height: 12),
+                buildFieldBox(middleInitialController, 'Middle Initial'),
+                const SizedBox(height: 12),
+                buildFieldBox(lastNameController, 'Last Name'),
+                const SizedBox(height: 12),
+                buildFieldBox(addressController, 'Address'),
+                const SizedBox(height: 12),
+                buildFieldBox(mobileController, 'Mobile Number', keyboardType: TextInputType.phone),
+                const SizedBox(height: 12),
+                buildFieldBox(emailController, 'Email', keyboardType: TextInputType.emailAddress),
+                const SizedBox(height: 12),
+                buildPasswordBox(passwordController, 'Password', _showPassword, () {
+                  setState(() => _showPassword = !_showPassword);
+                }),
+                const SizedBox(height: 12),
+                buildPasswordBox(confirmPasswordController, 'Confirm Password', _showConfirmPassword, () {
+                  setState(() => _showConfirmPassword = !_showConfirmPassword);
+                }),
+                const SizedBox(height: 28),
+                _isLoading
+                    ? const CircularProgressIndicator(color: Color(0xFF1976D2))
+                    : SizedBox(
+                        width: 300,
+                        child: ElevatedButton(
+                          onPressed: () => registerUser(context),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF1976D2),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(35),
+                            ),
+                            elevation: 6,
+                            shadowColor: Colors.blueAccent,
+                            textStyle: const TextStyle(
+                              fontSize: 19,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          child: const Text(
+                            'Register',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ),
+                const SizedBox(height: 26),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      "Already have an account? ",
+                      style: TextStyle(color: Color(0xFF566573)),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        context.go('/login');
+                      },
+                      child: const Text(
+                        "Login here",
+                        style: TextStyle(
+                          color: Color(0xFF1976D2),
+                          fontWeight: FontWeight.bold,
+                          decoration: TextDecoration.underline,
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -111,17 +144,36 @@ class _RegisterPageState extends State<RegisterPage> {
         controller: controller,
         decoration: InputDecoration(
           labelText: label,
-          filled: true,
-          fillColor: Colors.white,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
+          labelStyle: const TextStyle(
+            color: Color(0xFF154360),
+            fontWeight: FontWeight.w500,
+            fontSize: 16,
           ),
+          filled: true,
+          fillColor: Color(0xFFF9FBFC),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: const BorderSide(color: Color(0xFF9BBDDF), width: 1.5),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: const BorderSide(color: Color(0xFF9BBDDF), width: 1.5),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: const BorderSide(color: Color(0xFF1976D2), width: 2),
+          ),
+        ),
+        style: const TextStyle(
+          color: Color(0xFF0D3B66),
+          fontSize: 16,
         ),
         obscureText: obscureText,
         keyboardType: keyboardType,
       ),
     );
   }
+
   Widget buildPasswordBox(
     TextEditingController controller,
     String label,
@@ -135,17 +187,36 @@ class _RegisterPageState extends State<RegisterPage> {
         obscureText: !isVisible,
         decoration: InputDecoration(
           labelText: label,
+          labelStyle: const TextStyle(
+            color: Color(0xFF154360),
+            fontWeight: FontWeight.w500,
+            fontSize: 16,
+          ),
           filled: true,
-          fillColor: Colors.white,
+          fillColor: Color(0xFFF9FBFC),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(14),
+            borderSide: const BorderSide(color: Color(0xFF9BBDDF), width: 1.5),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: const BorderSide(color: Color(0xFF9BBDDF), width: 1.5),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: const BorderSide(color: Color(0xFF1976D2), width: 2),
           ),
           suffixIcon: IconButton(
             icon: Icon(
               isVisible ? Icons.visibility : Icons.visibility_off,
+              color: Color(0xFF1976D2),
             ),
             onPressed: onToggle,
           ),
+        ),
+        style: const TextStyle(
+          color: Color(0xFF0D3B66),
+          fontSize: 16,
         ),
       ),
     );
@@ -197,12 +268,12 @@ class _RegisterPageState extends State<RegisterPage> {
         body: {'email': email},
       );
 
-    try {
-      final status = (response as dynamic).status;
-      if (status != 200) {
-        throw Exception('Failed to send OTP (status $status)');
-      }
-    } catch (_) {}
+      try {
+        final status = (response as dynamic).status;
+        if (status != 200) {
+          throw Exception('Failed to send OTP (status $status)');
+        }
+      } catch (_) {}
 
       context.go('/verify-otp', extra: email);
     } catch (e) {
@@ -212,25 +283,25 @@ class _RegisterPageState extends State<RegisterPage> {
     }
   }
 
-    Future<String> _getDefaultRoleId() async {
-      try {
-        final role = await supabase
-            .from('roles')
-            .select('id')
-            .eq('name', 'User')
-            .single();
+  Future<String> _getDefaultRoleId() async {
+    try {
+      final role = await supabase
+          .from('roles')
+          .select('id')
+          .eq('name', 'User')
+          .single();
 
-        final id = role['id'];
-        if (id == null) {
-          throw Exception('Default role not found');
-        }
-        return id as String;
-      } on PostgrestException catch (e) {
-        throw Exception('Database error while fetching role: ${e.message}');
-      } catch (e) {
-        throw Exception('Unexpected error while fetching role: $e');
+      final id = role['id'];
+      if (id == null) {
+        throw Exception('Default role not found');
       }
+      return id as String;
+    } on PostgrestException catch (e) {
+      throw Exception('Database error while fetching role: ${e.message}');
+    } catch (e) {
+      throw Exception('Unexpected error while fetching role: $e');
     }
+  }
 
   void _showSnackBar(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));

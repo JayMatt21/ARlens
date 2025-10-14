@@ -17,7 +17,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
   final List<Widget> _pages = const [
     HomeTab(),
     ServicesPage(),
-    AreaCalculatorPage(), // Camera page added here
+    AreaCalculatorPage(),
     ProductsPage(),
     SettingsPage(),
   ];
@@ -31,17 +31,42 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _pages[_selectedIndex],
-      bottomNavigationBar: BottomAppBar(
-        shape: const CircularNotchedRectangle(),
-        notchMargin: 8,
+      body: Container(
+        // Page-wide gradient background
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Color(0xFFD0E8FF),
+              Color(0xFF9BBDDF),
+              Color(0xFFF9FBFC),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: _pages[_selectedIndex], // Keep child theme-consistent
+      ),
+      bottomNavigationBar: Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          boxShadow: [
+            BoxShadow(
+              color: Color(0x1001976D2),
+              blurRadius: 12,
+              offset: Offset(0, -2),
+            ),
+          ],
+        ),
         child: BottomNavigationBar(
           currentIndex: _selectedIndex,
           onTap: _onNavTapped,
           type: BottomNavigationBarType.fixed,
-          selectedItemColor: Colors.blue,
-          unselectedItemColor: Colors.grey,
+          selectedItemColor: const Color(0xFF1976D2),
+          unselectedItemColor: const Color(0xFF566573),
+          backgroundColor: Colors.transparent,
           showUnselectedLabels: true,
+          elevation: 0,
           items: const [
             BottomNavigationBarItem(
               icon: Icon(Icons.home),
@@ -52,7 +77,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
               label: "Services",
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.photo_camera), // Camera icon here
+              icon: Icon(Icons.photo_camera),
               label: "Camera",
             ),
             BottomNavigationBarItem(
@@ -66,7 +91,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
           ],
         ),
       ),
-      floatingActionButton: null, // No floating action button
+      floatingActionButton: null,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
@@ -78,21 +103,53 @@ class HomeTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Image.asset(
-            'assets/images/background1.jpg',
-            height: 120,
-          ),
-          const SizedBox(height: 20),
-          const Text(
-            "Welcome to Senfrost!",
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 10),
-          const Text("Your trusted partner for cooling solutions."),
-        ],
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 34),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x2001976D2), // faint blue shadow
+                    blurRadius: 10,
+                    spreadRadius: 4,
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(18),
+                child: Image.asset(
+                  'assets/images/background1.jpg',
+                  height: 120,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            const SizedBox(height: 28),
+            const Text(
+              "Welcome to Senfrost!",
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF0D3B66),
+                letterSpacing: 0.5,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 10),
+            const Text(
+              "Your trusted partner for cooling solutions.",
+              style: TextStyle(
+                fontSize: 16,
+                color: Color(0xFF566573),
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }

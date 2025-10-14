@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -11,9 +10,9 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final supabase = Supabase.instance.client;
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final supabase = Supabase.instance.client;
 
   bool _isPasswordVisible = false;
   bool _isLoading = false;
@@ -21,7 +20,6 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
-
     supabase.auth.onAuthStateChange.listen((data) {
       final event = data.event;
       if (event == AuthChangeEvent.signedIn) {
@@ -33,76 +31,155 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 241, 170, 165),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Color(0xFFD0E8FF),
+              Color(0xFF9BBDDF),
+              Color(0xFFF9FBFC),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
         child: Center(
           child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 36),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
+                const Text(
                   'Login to Senfrost',
-                  style: Theme.of(context)
-                      .textTheme
-                      .headlineMedium
-                      ?.copyWith(color: Colors.white),
+                  style: TextStyle(
+                    color: Color(0xFF0D3B66),
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.5,
+                  ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 20),
-                TextField(
-                  controller: emailController,
-                  decoration: const InputDecoration(
-                    labelText: 'Email',
-                    filled: true,
-                    fillColor: Colors.white,
-                  ),
-                  keyboardType: TextInputType.emailAddress,
-                ),
-                const SizedBox(height: 10),
-                TextField(
-                  controller: passwordController,
-                  obscureText: !_isPasswordVisible,
-                  decoration: InputDecoration(
-                    labelText: 'Password',
-                    filled: true,
-                    fillColor: Colors.white,
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _isPasswordVisible
-                            ? Icons.visibility
-                            : Icons.visibility_off,
+                const SizedBox(height: 30),
+                SizedBox(
+                  width: 300,
+                  child: TextField(
+                    controller: emailController,
+                    decoration: const InputDecoration(
+                      labelText: 'Email',
+                      labelStyle: TextStyle(
+                        color: Color(0xFF154360),
+                        fontWeight: FontWeight.w500,
+                        fontSize: 16,
                       ),
-                      onPressed: () {
-                        setState(() {
-                          _isPasswordVisible = !_isPasswordVisible;
-                        });
-                      },
+                      filled: true,
+                      fillColor: Color(0xFFF9FBFC),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(14)),
+                        borderSide: BorderSide(color: Color(0xFF9BBDDF), width: 1.5),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(14)),
+                        borderSide: BorderSide(color: Color(0xFF9BBDDF), width: 1.5),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(14)),
+                        borderSide: BorderSide(color: Color(0xFF1976D2), width: 2),
+                      ),
                     ),
+                    keyboardType: TextInputType.emailAddress,
+                    style: const TextStyle(color: Color(0xFF0D3B66), fontSize: 16),
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: 300,
+                  child: TextField(
+                    controller: passwordController,
+                    obscureText: !_isPasswordVisible,
+                    decoration: InputDecoration(
+                      labelText: 'Password',
+                      labelStyle: const TextStyle(
+                        color: Color(0xFF154360),
+                        fontWeight: FontWeight.w500,
+                        fontSize: 16,
+                      ),
+                      filled: true,
+                      fillColor: const Color(0xFFF9FBFC),
+                      border: const OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(14)),
+                        borderSide: BorderSide(color: Color(0xFF9BBDDF), width: 1.5),
+                      ),
+                      enabledBorder: const OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(14)),
+                        borderSide: BorderSide(color: Color(0xFF9BBDDF), width: 1.5),
+                      ),
+                      focusedBorder: const OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(14)),
+                        borderSide: BorderSide(color: Color(0xFF1976D2), width: 2),
+                      ),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                          color: Color(0xFF1976D2),
+                        ),
+                        onPressed: () {
+                          setState(() => _isPasswordVisible = !_isPasswordVisible);
+                        },
+                      ),
+                    ),
+                    style: const TextStyle(color: Color(0xFF0D3B66), fontSize: 16),
+                  ),
+                ),
+                const SizedBox(height: 28),
                 _isLoading
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : ElevatedButton(
-                        onPressed: () => manualLogin(context),
-                        child: const Text('Login'),
+                    ? const CircularProgressIndicator(color: Color(0xFF1976D2))
+                    : SizedBox(
+                        width: 300,
+                        child: ElevatedButton(
+                          onPressed: () => manualLogin(context),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF1976D2),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(35),
+                            ),
+                            elevation: 6,
+                            shadowColor: Colors.blueAccent,
+                            textStyle: const TextStyle(
+                              fontSize: 19,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          child: const Text(
+                            'Login',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
                       ),
                 TextButton(
                   onPressed: () => context.go('/register'),
-                  child: const Text('Register now'),
+                  child: const Text(
+                    'Register now',
+                    style: TextStyle(
+                      color: Color(0xFF1976D2),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
                 TextButton(
                   onPressed: () => _showForgotPasswordDialog(),
                   child: const Text(
                     'Forgot Password?',
-                    style: TextStyle(decoration: TextDecoration.underline),
+                    style: TextStyle(
+                      decoration: TextDecoration.underline,
+                      color: Color(0xFF566573),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 40),
                 const Text(
                   'Or login with',
-                  style: TextStyle(color: Colors.white),
+                  style: TextStyle(color: Color(0xFF566573)),
                 ),
                 const SizedBox(height: 20),
                 Row(
@@ -110,11 +187,13 @@ class _LoginPageState extends State<LoginPage> {
                   children: [
                     IconButton(
                       icon: Image.asset('assets/icons/google.png'),
+                      iconSize: 32,
                       onPressed: () => signInWithGoogle(context),
                     ),
                     const SizedBox(width: 10),
                     IconButton(
                       icon: Image.asset('assets/icons/facebook.png'),
+                      iconSize: 32,
                       onPressed: () => signInWithFacebook(context),
                     ),
                   ],
@@ -129,7 +208,6 @@ class _LoginPageState extends State<LoginPage> {
 
   void _showForgotPasswordDialog() {
     final forgotEmailController = TextEditingController();
-
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
