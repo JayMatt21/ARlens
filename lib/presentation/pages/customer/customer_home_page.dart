@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'services_page.dart';
 import 'products_page.dart';
 import 'settings_page.dart';
-import 'area_calculator_page.dart'; // Your camera equivalent
+import 'area_calculator_page.dart';
 
 class CustomerHomePage extends StatefulWidget {
   const CustomerHomePage({super.key});
@@ -17,12 +17,12 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
   final List<Widget> _pages = const [
     HomeTab(),
     ServicesPage(),
-    AreaCalculatorPage(),
+    CustomerAreaCalculatorPage(), 
     ProductsPage(),
     SettingsPage(),
   ];
 
-  void _onNavTapped(int index) {
+  void _onNavTapped(int index) {  
     setState(() {
       _selectedIndex = index;
     });
@@ -52,7 +52,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
           boxShadow: [
             BoxShadow(
-              color: Color(0x1001976D2),
+              color: Color(0x1001976d2),
               blurRadius: 12,
               offset: Offset(0, -2),
             ),
@@ -113,7 +113,7 @@ class HomeTab extends StatelessWidget {
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: const [
                   BoxShadow(
-                    color: Color(0x2001976D2), // faint blue shadow
+                    color: Color(0x2001976d2), // faint blue shadow
                     blurRadius: 10,
                     spreadRadius: 4,
                   ),

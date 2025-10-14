@@ -9,12 +9,12 @@ class LoadingWidget extends StatelessWidget {
   final bool centered;
 
   const LoadingWidget({
-    Key? key,
+    super.key,
     this.message,
     this.size = 36.0,
     this.strokeWidth = 3.0,
     this.centered = true,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -1,57 +1,130 @@
-import 'package:arlens/presentation/widgets/custom_button.dart';
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:arlens/presentation/pages/customer/products_page.dart';
+import 'package:image_picker/image_picker.dart';
+import 'products_page.dart';
 
-
-class AreaCalculatorPage extends StatefulWidget {
-  const AreaCalculatorPage({super.key});
-
+class CustomerAreaCalculatorPage extends StatefulWidget {
+  const CustomerAreaCalculatorPage({super.key});
   @override
-  State<AreaCalculatorPage> createState() => _AreaCalculatorPageState();
+  State<CustomerAreaCalculatorPage> createState() => _CustomerAreaCalculatorPageState();
 }
 
-class _AreaCalculatorPageState extends State<AreaCalculatorPage> {
-  final TextEditingController _lengthController = TextEditingController();
-  final TextEditingController _widthController = TextEditingController();
-  String _unit = 'm'; // m or ft
+class _CustomerAreaCalculatorPageState extends State<CustomerAreaCalculatorPage> {
+  File? _image;
+  final picker = ImagePicker();
+  List<Offset> points = [];
+  double calculatedArea = 0.0;
+  double referenceLengthMeters = 1.0;
+  double referenceLengthPixels = 100.0;
 
   @override
-  void dispose() {
-    _lengthController.dispose();
-    _widthController.dispose();
-    super.dispose();
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("Estimate Room Area")),
+      body: Column(
+        children: [
+          Expanded(
+            child: _image == null
+                ? Center(
+                    child: ElevatedButton(
+                      onPressed: _pickImage,
+                      child: const Text("Take/Select Photo"),
+                    ),
+                  )
+                : GestureDetector(
+                    onTapDown: (details) {
+                      setState(() {
+                        points.add(details.localPosition);
+                        if (points.length >= 3) {
+                          calculatedArea = calculateArea(points);
+                        }
+                      });
+                    },
+                    child: Stack(
+                      children: [
+                        Image.file(_image!, fit: BoxFit.contain, width: double.infinity),
+                        ...points.map(
+                          (p) => Positioned(
+                            left: p.dx - 5,
+                            top: p.dy - 5,
+                            child: Container(
+                              width: 10,
+                              height: 10,
+                              decoration: const BoxDecoration(
+                                color: Colors.red,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
+              children: [
+                Text("Points tapped: ${points.length}"),
+                Text("Estimated area: ${calculatedArea.toStringAsFixed(2)} m²"),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          points.clear();
+                          calculatedArea = 0.0;
+                        });
+                      },
+                      child: const Text("Reset"),
+                    ),
+                    const SizedBox(width: 12),
+                    ElevatedButton(
+                      onPressed: () {
+                        _showACRecommendation(calculatedArea);
+                      },
+                      child: const Text("Suggest AC"),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
-  double? _parseInput(String text) {
-    final v = double.tryParse(text.replaceAll(',', '.'));
-    return v;
-  }
-
-  double _toSquareMeters(double area, String unit) {
-    if (unit == 'ft') {
-      return area * 0.092903; // sq ft to sq m
+  Future<void> _pickImage() async {
+    final pickedFile = await picker.pickImage(source: ImageSource.camera);
+    if (pickedFile != null) {
+      setState(() {
+        _image = File(pickedFile.path);
+        points.clear();
+        calculatedArea = 0.0;
+      });
     }
-    return area;
   }
 
-  void _calculateAndRecommend() {
-    final l = _parseInput(_lengthController.text);
-    final w = _parseInput(_widthController.text);
-
-    if (l == null || w == null || l <= 0 || w <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter valid positive numbers for length and width')),
-      );
-      return;
+  double calculateArea(List<Offset> pts) {
+    if (pts.length < 3) return 0.0;
+    double sum = 0.0;
+    for (int i = 0; i < pts.length; i++) {
+      final p1 = pts[i];
+      final p2 = pts[(i + 1) % pts.length];
+      sum += (p1.dx * p2.dy) - (p2.dx * p1.dy);
     }
+    double scale = referenceLengthMeters / referenceLengthPixels;
+    double areaInMeters2 = (sum.abs() / 2.0) * (scale * scale);
+    return areaInMeters2;
+  }
 
-    final rawArea = l * w;
-    final areaSqM = _toSquareMeters(rawArea, _unit);
-
+  void _showACRecommendation(double area) {
     String suggestion;
-    if (areaSqM <= 12) {
+    if (area <= 12) {
       suggestion = "0.75–1 HP AC (Small Room)";
-    } else if (areaSqM <= 25) {
+    } else if (area <= 25) {
       suggestion = "1–1.5 HP AC (Medium Room)";
     } else {
       suggestion = "2 HP+ AC (Large Room)";
@@ -60,132 +133,21 @@ class _AreaCalculatorPageState extends State<AreaCalculatorPage> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('AC Recommendation'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Computed area: ${areaSqM.toStringAsFixed(2)} m²'),
-            const SizedBox(height: 8),
-            Text(suggestion, style: const TextStyle(fontWeight: FontWeight.w600)),
-          ],
-        ),
+        title: const Text("AC Recommendation"),
+        content: Text("Area: ${area.toStringAsFixed(2)} m²\n$suggestion"),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
+            child: const Text("OK"),
           ),
-          CustomButton(
+          TextButton(
             onPressed: () {
               Navigator.pop(context);
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const ProductsPage()),
-              );
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const ProductsPage()));
             },
-            child: const Text('View Products'),
+            child: const Text("View Products"),
           ),
         ],
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Area Calculator'),
-        backgroundColor: theme.colorScheme.primary,
-        elevation: 0,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            Card(
-              elevation: 6,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: _lengthController,
-                            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                            decoration: const InputDecoration(
-                              labelText: 'Length',
-                              hintText: 'e.g. 4.5',
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: TextField(
-                            controller: _widthController,
-                            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                            decoration: const InputDecoration(
-                              labelText: 'Width',
-                              hintText: 'e.g. 3.0',
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        const Text('Units:'),
-                        const SizedBox(width: 12),
-                        ToggleButtons(
-                          isSelected: [_unit == 'm', _unit == 'ft'],
-                          onPressed: (index) {
-                            setState(() {
-                              _unit = index == 0 ? 'm' : 'ft';
-                            });
-                          },
-                          borderRadius: BorderRadius.circular(8),
-                          children: const [
-                            Padding(padding: EdgeInsets.symmetric(horizontal: 12), child: Text('meters (m)')),
-                            Padding(padding: EdgeInsets.symmetric(horizontal: 12), child: Text('feet (ft)')),
-                          ],
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    CustomButton(
-                      onPressed: _calculateAndRecommend,
-                      child: const Text('Calculate & Recommend'),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Expanded(
-              child: Center(
-                child: Opacity(
-                  opacity: 0.9,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.ac_unit, size: 80, color: theme.colorScheme.primary),
-                      const SizedBox(height: 12),
-                      Text(
-                        'Get recommended ACs\nand view available products',
-                        textAlign: TextAlign.center,
-                        style: theme.textTheme.titleMedium,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

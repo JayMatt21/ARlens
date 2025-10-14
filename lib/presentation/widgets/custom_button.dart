@@ -10,7 +10,7 @@ class CustomButton extends StatelessWidget {
   final bool enabled;
 
   const CustomButton({
-    Key? key,
+    super.key,
     required this.onPressed,
     this.label,
     this.child,
@@ -18,7 +18,7 @@ class CustomButton extends StatelessWidget {
     this.padding = const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
     this.elevation = 2,
     this.enabled = true,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -13,13 +13,13 @@ class AppErrorWidget extends StatelessWidget {
   final IconData icon;
 
   const AppErrorWidget({
-    Key? key,
+    super.key,
     this.title,
     this.message,
     this.onRetry,
     this.retryLabel = 'Retry',
     this.icon = Icons.error_outline,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
