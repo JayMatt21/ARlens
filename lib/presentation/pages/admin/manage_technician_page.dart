@@ -46,14 +46,14 @@ class _ManageTechniciansPageState extends State<ManageTechniciansPage> {
     final lastController = TextEditingController(text: tech?['last_name'] ?? '');
     final emailController = TextEditingController(text: tech?['email'] ?? '');
 
-    final isNew = tech == null;
+    final isPromote = tech == null;
 
     await showDialog(
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: const Color(0xFFF9FBFC),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(isNew ? 'Add Technician' : 'Edit Technician',
+        title: Text(isPromote ? 'Promote/Add Technician' : 'Edit Technician',
             style: const TextStyle(color: Color(0xFF1976D2))),
         content: SingleChildScrollView(
           child: Column(
@@ -72,6 +72,7 @@ class _ManageTechniciansPageState extends State<ManageTechniciansPage> {
               ),
               TextField(
                 controller: emailController,
+                enabled: isPromote,
                 decoration: const InputDecoration(labelText: 'Email'),
               ),
             ],
@@ -99,47 +100,46 @@ class _ManageTechniciansPageState extends State<ManageTechniciansPage> {
               if (first.isEmpty || last.isEmpty || email.isEmpty) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                      content: Text('First name, last name and email are required')),
+                      content: Text('First name, last name, and email are required')),
                 );
                 return;
               }
 
               try {
-                if (isNew) {
-                  // Add new technician via Supabase Auth
-                  final password = "Temp#${DateTime.now().millisecondsSinceEpoch}!";
-                  final response = await supabase.auth.admin.createUser(
-                    AdminUserAttributes(
-                      email: email,
-                      password: password,
-                      emailConfirm: true, // or false for verification email
-                    ),
-                  );
-                  final user = response.user;
-                  if (user == null) throw Exception("Auth creation failed.");
-                  final userId = user.id;
+                if (isPromote) {
+                  // Promote existing user to technician (must already be registered)
+                  final userRows = await supabase
+                      .from('users')
+                      .select('id')
+                      .eq('email', email);
 
-                  // Insert into users table
-                  await supabase.from('users').insert({
-                    'id': userId,
-                    'first_name': first,
-                    'middle_initial': middle,
-                    'last_name': last,
-                    'email': email,
-                    'role': 'technician',
-                    'created_at': DateTime.now().toIso8601String(),
-                  });
-
+                  if (userRows.isNotEmpty) {
+                    final id = userRows[0]['id'];
+                    await supabase.from('users').update({
+                      'first_name': first,
+                      'middle_initial': middle,
+                      'last_name': last,
+                      'role': 'technician',
+                    }).eq('id', id);
+                  } else {
+                    // If not found, optionally allow admin to create a profile-only user (not able to log in)
+                    await supabase.from('users').insert({
+                      'first_name': first,
+                      'middle_initial': middle,
+                      'last_name': last,
+                      'email': email,
+                      'role': 'technician',
+                      'created_at': DateTime.now().toIso8601String(),
+                    });
+                  }
                 } else {
                   // Edit info only in users table
                   await supabase.from('users').update({
                     'first_name': first,
                     'middle_initial': middle,
                     'last_name': last,
-                    'email': email,
                   }).eq('id', tech['id']);
                 }
-
                 Navigator.pop(context);
                 _loadTechnicians();
               } catch (e) {
@@ -148,7 +148,7 @@ class _ManageTechniciansPageState extends State<ManageTechniciansPage> {
                     SnackBar(content: Text('Error saving technician: $e')));
               }
             },
-            child: Text(isNew ? 'Add' : 'Update'),
+            child: Text(isPromote ? 'Promote/Add' : 'Update'),
           ),
         ],
       ),
@@ -183,7 +183,6 @@ class _ManageTechniciansPageState extends State<ManageTechniciansPage> {
     if (confirm == true) {
       try {
         await supabase.from('users').delete().eq('id', id);
-        // Optionally: delete also in Auth (needs api)
         _loadTechnicians();
       } catch (e) {
         debugPrint('Error deleting technician: $e');
@@ -205,7 +204,7 @@ class _ManageTechniciansPageState extends State<ManageTechniciansPage> {
           IconButton(
             onPressed: () => _showTechnicianForm(),
             icon: const Icon(Icons.add, color: Color(0xFF1976D2)),
-            tooltip: 'Add Technician',
+            tooltip: 'Promote/Add Technician',
           ),
         ],
       ),
