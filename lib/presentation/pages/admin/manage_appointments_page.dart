@@ -15,9 +15,9 @@ class _ManageAppointmentsPageState extends State<ManageAppointmentsPage> {
   List<dynamic> technicians = [];
   bool loading = true;
   Set<int> expandedIndexes = {};
-  Map<int, TextEditingController> _dateControllers = {};
-  Map<int, DateTime?> _pendingDates = {};
-  Map<int, String?> _selectedTechnicians = {};
+  final Map<int, TextEditingController> _dateControllers = {};
+  final Map<int, DateTime?> _pendingDates = {};
+  final Map<int, String?> _selectedTechnicians = {};
 
   @override
   void initState() {
@@ -327,7 +327,7 @@ class _ManageAppointmentsPageState extends State<ManageAppointmentsPage> {
                                           filled: true,
                                           border: OutlineInputBorder(),
                                         ),
-                                        value: _selectedTechnicians[index],
+                                        initialValue: _selectedTechnicians[index],
                                         items: [
                                           const DropdownMenuItem(
                                             value: null,
@@ -338,7 +338,7 @@ class _ManageAppointmentsPageState extends State<ManageAppointmentsPage> {
                                               value: t['id'] as String,
                                               child: Text("${t['first_name']} ${t['last_name']}"),
                                             );
-                                          }).toList(),
+                                          }),
                                         ],
                                         onChanged: (String? value) {
                                           setState(() {
