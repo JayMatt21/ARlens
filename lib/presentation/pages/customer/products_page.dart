@@ -13,21 +13,21 @@ class _ProductsPageState extends State<ProductsPage> {
     {
       "name": "Window Type Aircon",
       "price": 15000,
-      "image": "/images/windowtype.jpg",
+      "image": "assets/images/windowtype.jpg",
       "brands": ["LG", "Samsung", "Carrier"],
       "sizes": ["0.5 HP", "1.0 HP", "1.5 HP"]
     },
     {
       "name": "Split Type Aircon",
       "price": 25000,
-      "image": "/images/splittype.jpg",
+      "image": "assets/images/splittype.jpg",
       "brands": ["Daikin", "Panasonic", "Midea"],
       "sizes": ["1.0 HP", "1.5 HP", "2.0 HP"]
     },
     {
       "name": "Portable Aircon",
       "price": 18000,
-      "image": "/images/portable.jpg",
+      "image": "assets/images/portable.jpg",
       "brands": ["Kolin", "Sharp", "Midea"],
       "sizes": ["1.0 HP", "1.5 HP"]
     },
@@ -171,60 +171,79 @@ class _ProductsPageState extends State<ProductsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return GridView.builder(
-      padding: const EdgeInsets.all(16),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        mainAxisSpacing: 16,
-        crossAxisSpacing: 16,
-        childAspectRatio: 0.75,
+    final theme = Theme.of(context);
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Products'),
+        elevation: 0,
+        backgroundColor: theme.colorScheme.primary,
       ),
-      itemCount: products.length,
-      itemBuilder: (context, index) {
-        final product = products[index];
-        return GestureDetector(
-          onTap: () => _openProductDetails(product),
-          child: Card(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            elevation: 3,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Expanded(
-                  child: Image.asset(
-                    product["image"] as String,
-                    fit: BoxFit.contain,
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    children: [
-                      Text(
-                        product["name"] as String,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        "₱${product["price"]}",
-                        style: const TextStyle(
-                          color: Colors.green,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: GridView.builder(
+          itemCount: products.length,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            mainAxisSpacing: 16,
+            crossAxisSpacing: 16,
+            childAspectRatio: 0.75,
           ),
-        );
-      },
+          itemBuilder: (context, index) {
+            final product = products[index];
+            return GestureDetector(
+              onTap: () => _openProductDetails(product),
+              child: Card(
+                color: theme.cardColor,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                elevation: 6,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Image.asset(
+                          product["image"] as String,
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                    ),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: theme.scaffoldBackgroundColor,
+                        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(12)),
+                      ),
+                      child: Column(
+                        children: [
+                          Text(
+                            product["name"] as String,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            "₱${product["price"]}",
+                            style: const TextStyle(
+                              color: Colors.green,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ),
     );
   }
 }
