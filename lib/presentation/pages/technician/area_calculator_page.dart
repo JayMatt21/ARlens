@@ -166,15 +166,12 @@
               },
               child: const Text("OK"),
             ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(dialogCtx);
-                // Use rootNavigator and main context!
-                Future.delayed(const Duration(milliseconds: 100), () {
-                  Navigator.of(context, rootNavigator: true).pushNamed('/products');
-                });
-              },
-              child: const Text("View Products"),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const ProductsPage()));
+            },
+            child: const Text("View Products"),
             ),
           ],
         ),
