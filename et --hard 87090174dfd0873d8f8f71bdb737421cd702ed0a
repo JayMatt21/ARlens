@@ -1,0 +1,563 @@
+[33mcommit bff8dba4a4471adb4dda9c9ed4137a49f0bef01d[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Thu Oct 16 18:33:20 2025 +0800
+
+    java red hat disabled
+
+[33mcommit 579a9f6173ee89ea88a08b88f595d0b5acf25495[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Thu Oct 16 17:13:57 2025 +0800
+
+    ar
+
+[33mcommit 87090174dfd0873d8f8f71bdb737421cd702ed0a[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Wed Oct 15 02:04:28 2025 +0800
+
+    manage Tech updated
+
+[33mcommit d27e9a2291b692f4e19d6184505dbf804325b36f[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Wed Oct 15 01:45:13 2025 +0800
+
+    appointments
+
+[33mcommit 370244a6156fbb5ba397c06f69ea75db3bd2eb67[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Wed Oct 15 01:44:48 2025 +0800
+
+    appointments
+
+[33mcommit 2387f0e1529bc656acd200cc4d81bd9d95910254[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Tue Oct 14 17:28:29 2025 +0800
+
+    updated appointments
+
+[33mcommit f9d8bcca6be35bd9f39c6ab698a29d8b66e55388[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Tue Oct 14 14:10:48 2025 +0800
+
+    updated admin functions
+
+[33mcommit ee574cc66609672f3820c3674522dc5dc0811538[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Tue Oct 14 13:31:35 2025 +0800
+
+    technician arcalculator
+
+[33mcommit e00e1e07bbb89236d616ed05b1125ef76f573635[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Tue Oct 14 13:22:02 2025 +0800
+
+    latestTechnician
+
+[33mcommit 99f4c556cd5eabdfa6eb6acb74dc062fb33ae666[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Tue Oct 14 12:16:26 2025 +0800
+
+    tech-productspage
+
+[33mcommit 9e1ef94760d6b820b4df1c7dffb22e3bc10a2d1a[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Tue Oct 14 10:26:32 2025 +0800
+
+    register rollback
+
+[33mcommit 141f48c1a9d186b0e9ebd7ea8488d5db06034f02[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Tue Oct 14 09:59:07 2025 +0800
+
+    updated theme for all dashboards
+
+[33mcommit ae0fe26c937740686b1f3b107b4c43653cdd630f[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Tue Oct 14 09:46:29 2025 +0800
+
+    themeapplied2
+
+[33mcommit 324911073621f93a2dd223908ab513d4cee0448d[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Tue Oct 14 09:36:18 2025 +0800
+
+    themeupdated
+
+[33mcommit 2dc72970286d9627476749b55bbae73ef3954964[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Tue Oct 14 09:03:43 2025 +0800
+
+    updatedvs
+
+[33mcommit 6796b0cdf7c69b40fa32fd416480246f00c4230c[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Mon Oct 13 21:48:26 2025 +0800
+
+    routes updated
+
+[33mcommit cf85c8001c9c9c75ce4d525951f5f47edfdfa253[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Sat Oct 11 21:08:47 2025 +0800
+
+    added forgot password
+
+[33mcommit 45885db79548ebff4af33fb6cfecf675da765cb4[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Sat Oct 11 20:35:25 2025 +0800
+
+    updated routing products
+
+[33mcommit bace367877c01c7c02d4ae4b9fb8ad79198459e7[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Mon Sep 15 01:30:41 2025 +0800
+
+    updated ar calculator-technician
+
+[33mcommit 1d673a39cf709a769db23f33cbd49408e3a85903[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Mon Sep 15 01:27:50 2025 +0800
+
+    updated technician AR Calculator
+
+[33mcommit 5691a49812e84857e6956d54950487714a0e7e4c[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Mon Sep 15 01:12:52 2025 +0800
+
+    added technician dashboard
+
+[33mcommit 716e3b611e6f83ffd3b6bf0e34f21affa0365c47[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Mon Sep 15 01:03:54 2025 +0800
+
+    updated login with tech routing
+
+[33mcommit 1c5211c8a978f62cecd6a3698eec04eefce8fc26[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Mon Sep 15 00:37:39 2025 +0800
+
+    updated manage Technician page
+
+[33mcommit 43290c2ecafe45927d12538786ebd6598c77c451[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Mon Sep 15 00:36:46 2025 +0800
+
+    added manage product page
+
+[33mcommit 31b20ef73db2224373861e0584ee3d379f80dfe7[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Sun Sep 14 23:53:03 2025 +0800
+
+    updated appointment and added technician
+
+[33mcommit f853f10c8adb390514d7ae84ddfb54dfd6a8a9c3[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Sun Sep 14 23:32:24 2025 +0800
+
+    final hybrid manageappointment
+
+[33mcommit fe339f1b668bc93e0ebf363cc7d15faf11c5c23b[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Sun Sep 14 23:09:04 2025 +0800
+
+    updated final appointment
+
+[33mcommit 134c3146ab549baac82a4f162f95cbb96caf5dd2[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Sun Sep 14 22:55:02 2025 +0800
+
+    updated customername view _ manageappointment
+
+[33mcommit 1b61ec0823877688cc15b16a3f83c00fb3c2450b[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Sun Sep 14 22:46:48 2025 +0800
+
+    final am/pm
+
+[33mcommit b94f4d08734c95a991a8592db65812ef03623aa4[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Sun Sep 14 22:25:24 2025 +0800
+
+    updatedtimeschedullingformat
+
+[33mcommit 04ba50756e812e361645ac52d0a6c5ba534bc935[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Sun Sep 14 22:18:15 2025 +0800
+
+    updated manageappointment with supabase corrected schema
+
+[33mcommit 43fba7e04cc8b211cbf8341ed561ddb562d31631[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Sun Sep 14 22:08:29 2025 +0800
+
+    updated schedulling with corrected join tables
+
+[33mcommit 13b536c44908e33e2750717ec5e1c958594f110f[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Sun Sep 14 21:41:37 2025 +0800
+
+    updated adminpage_supabase
+
+[33mcommit 94a225c1513a26d8c7a627ed0638be086ac7484f[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Sun Sep 14 21:03:29 2025 +0800
+
+    fixed manage appointment
+
+[33mcommit db05251d6894b68a8cb77a3373dd8bc9bcc0d1b6[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Sun Sep 14 21:01:58 2025 +0800
+
+    updated adminpage with supabase
+
+[33mcommit 3ccb754262535d450c6f186180d376ad8ea9f026[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Sun Sep 14 21:00:42 2025 +0800
+
+    updated schedulling and Manage appointment with Supabase
+
+[33mcommit e950a231ce77b9e5132ae4c08d469f15baf29404[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Sun Sep 14 20:52:37 2025 +0800
+
+    corrected path for images
+
+[33mcommit 6459b2546972b7e7ba32ede4f48ca94e99b3e054[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Sun Sep 14 20:49:17 2025 +0800
+
+    added assets in pubspec
+
+[33mcommit 2797595da4feae835cc33bd37660c3dd566d14f8[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Sun Sep 14 20:44:00 2025 +0800
+
+    updated image code
+
+[33mcommit 31a42db0cf99318b214736db66be78336b1a9b2c[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Sun Sep 14 20:41:11 2025 +0800
+
+    added ac images
+
+[33mcommit 821e285c8a0a8981284c799b2edb39029669f439[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Sun Sep 14 20:35:53 2025 +0800
+
+    updated products page
+
+[33mcommit bc33f1be5d735ddf92e61feafb5042f3900f3491[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Sun Sep 14 20:14:17 2025 +0800
+
+    updated Services to gorouter
+
+[33mcommit 1a4a7e92ed215fb95209201ff490517ad087310e[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Sun Sep 14 20:10:16 2025 +0800
+
+    schedullingroute updated
+
+[33mcommit 92931544082a88a396585046ba277d66c75ef038[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Sun Sep 14 19:57:49 2025 +0800
+
+    schedullingpage added
+
+[33mcommit d11f31a6b7e548206b171ff6f77424de89e58217[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Sun Sep 14 19:50:16 2025 +0800
+
+    updated servicespage
+
+[33mcommit 0d1ff53da945d806d57b21c805ff13c912b47ab0[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Wed Sep 10 12:17:48 2025 +0800
+
+    updated purchase details and table query
+
+[33mcommit 3995ee290f5fbf11420db419a8b180e10e1af55a[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Wed Sep 10 11:59:18 2025 +0800
+
+    purchase history update
+
+[33mcommit 449fdf87dd4f3a912b11f8989948a306faa811b9[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Wed Sep 10 10:21:38 2025 +0800
+
+    rolebased route
+
+[33mcommit d1f55a781c92373c7edbadd18a20797ce3c39776[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Wed Sep 10 10:14:39 2025 +0800
+
+    final login update
+
+[33mcommit 5c172c07e246f394f2a774e742971d2654925420[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Wed Sep 10 09:38:40 2025 +0800
+
+    updated Login with RBAC role and password visibility
+
+[33mcommit ce03c5da65f018e4b88f47283630014ef16b134b[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Wed Sep 10 09:33:17 2025 +0800
+
+    added password visibility
+
+[33mcommit 4d8ab67af4a5117ccebe83ce37aa95c557603ad1[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Wed Sep 10 09:25:02 2025 +0800
+
+    updated login here route
+
+[33mcommit 627181de12e664186a4e64e268cd23d91763142f[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Wed Sep 10 09:19:50 2025 +0800
+
+    updated Main and Registerpages
+
+[33mcommit ed2ce8ad71f322391a0f97e53f1caad135adb8a8[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Wed Sep 10 09:07:22 2025 +0800
+
+    verfiy otp updated
+
+[33mcommit 43172972e90e250d93ca898f5a17797f0f098911[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Wed Sep 10 00:15:55 2025 +0800
+
+    OTP verification
+
+[33mcommit 1b46aa606779a8df9a4134bc9d5af9b44ac21330[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Tue Sep 9 22:43:06 2025 +0800
+
+    settings page update for User Profile render
+
+[33mcommit cd3f5cdf3211f0c2be6402c2a8c76a22dabf8426[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Tue Sep 9 22:26:21 2025 +0800
+
+    settings page updated2
+
+[33mcommit fe909faf4fbd9920a39d273865e5fa669b05bc8b[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Tue Sep 9 22:05:40 2025 +0800
+
+    updated Registration
+
+[33mcommit e935e835bb9f7beeed7f6d3e43042fef9575f63b[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Tue Sep 9 18:20:18 2025 +0800
+
+    updated Navbar
+
+[33mcommit 11e0706a47b9a4aabc7ca87cab4a35ded4a63f07[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Tue Sep 9 18:02:32 2025 +0800
+
+    finalized settings page
+
+[33mcommit 61d5da6626b40d3f4b7afba537eef3c85ec7f421[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Tue Sep 9 17:56:05 2025 +0800
+
+    logout routes to Splash
+
+[33mcommit 55aff43aa071fbd9b252b24ee640b932ba2e157b[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Tue Sep 9 17:52:24 2025 +0800
+
+    rerouting update after logout
+
+[33mcommit 3a041ba0b3b40634b059504f75154ff02e6de638[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Tue Sep 9 17:40:07 2025 +0800
+
+    logout function
+
+[33mcommit 3370f108a00e0e5e56dfa1b413aff1f776eb1202[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Tue Sep 9 17:03:45 2025 +0800
+
+    updated settings navigation and routing
+
+[33mcommit 37db09bc7f9105b0393e6b14ff6c6f3e41f071ea[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Tue Sep 9 15:11:29 2025 +0800
+
+    settings updated all
+
+[33mcommit 3b51dcd15f4d5b1158e69c577338af8363d3e85c[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Tue Sep 9 14:53:36 2025 +0800
+
+    updated settings
+
+[33mcommit 74283490dadab05afba861887f9b4a6b2672dbdb[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Tue Sep 9 14:39:39 2025 +0800
+
+    updated routing from splash
+
+[33mcommit 06c20d3706bba10c8cd69f034b3d0d95a5f76991[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Tue Sep 9 14:24:26 2025 +0800
+
+    splash and main update
+
+[33mcommit 1b45500861d9160a26a896aa512316bfaeda3f5b[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Tue Sep 9 12:16:28 2025 +0800
+
+    routes updates
+
+[33mcommit babcc60b4c035ebc9d307b8d7e2646d5aa70a7bc[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Tue Sep 9 12:06:54 2025 +0800
+
+    updated Main
+
+[33mcommit c3f6431be9dc3a73fc321cf5214cd3ee37107b00[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Tue Sep 9 11:58:38 2025 +0800
+
+    updated splash
+
+[33mcommit 5aa880d54bc0fe0f48a21e9d36ed0cb0a0fab7ec[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Tue Sep 9 00:30:37 2025 +0800
+
+    updated with fixes
+
+[33mcommit 1b81d5263c82f78330ac09da1ce5ed39e1bbab72[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Mon Sep 8 23:37:06 2025 +0800
+
+    finalize
+
+[33mcommit 1079bc789f83361bf2caf592e16072fc56b90664[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Sun Sep 7 12:37:22 2025 +0800
+
+    backup
+
+[33mcommit af91d5fd622ea9e6288ca9ebebd4f5e465c089ec[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Sat Sep 6 10:47:49 2025 +0800
+
+    archange
+
+[33mcommit a5d81a8b48cb4b4ebcb87c32ef6fbf9399b0493c[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Sat Sep 6 09:00:07 2025 +0800
+
+    arcalculator
+
+[33mcommit fadc0a792746838ee8fed5b0db1c116813a80768[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Sat Sep 6 00:53:03 2025 +0800
+
+    updated 2 build.gradle
+
+[33mcommit ef49476fa02fdb579486f20b68d4ac61b63594c7[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Sat Sep 6 00:45:42 2025 +0800
+
+    modify build.gradle
+
+[33mcommit 9850fdc61f0cf2112fdaa8b0c51e8ed94e1e463a[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Sat Sep 6 00:34:52 2025 +0800
+
+    pubspec update
+
+[33mcommit 5315dac43b95d45fd698781fb13d99abd442a57b[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Sat Sep 6 00:27:36 2025 +0800
+
+    add glb
+
+[33mcommit faa827b4d6999cd748f85dab5883ac40c2297b3c[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Sat Sep 6 00:17:37 2025 +0800
+
+    initial commit
+
+[33mcommit a5356a1d3092fb629165fd9e915a899277751257[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Tue Aug 26 12:56:12 2025 +0800
+
+    supabasedatasource
+
+[33mcommit 53be6f7dbf8c78ddf22dbe1f08e16adb6ecfc337[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Mon Aug 25 23:43:41 2025 +0800
+
+    exceptions
+
+[33mcommit 7cd1d33bbac26b6edd27cf17cd1e0011f720ff3e[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Mon Aug 25 23:38:46 2025 +0800
+
+    core
+
+[33mcommit 41a211d61696f62c3ed7757a8dcebd042724cc68[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Mon Aug 25 22:52:41 2025 +0800
+
+    goRoute version
+
+[33mcommit 3d54b610a64d72ee6702c6cc6164a99a23553b01[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Sun Aug 24 21:46:40 2025 +0800
+
+    PH DATA ACT
+
+[33mcommit 21a2b19be8a8a17585ffb1f3b57c79cd00078403[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Sun Aug 24 21:39:20 2025 +0800
+
+    privacy Notice
+
+[33mcommit 8c561d693d84bba986d343e7251b1a958e23c04b[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Sun Aug 24 21:26:55 2025 +0800
+
+    settings_page_updates
+
+[33mcommit 0e8f57eebf3a22dfa891405d601048aed9763408[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Sun Aug 24 21:09:44 2025 +0800
+
+    camera2
+
+[33mcommit b5569bd73a42dd36e48a9ab2a2cae9cc7a6120c1[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Sun Aug 24 21:00:52 2025 +0800
+
+    camera icon
+
+[33mcommit b8333dfdc8533c5c1b6e71a61608412e0a138be6[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Sun Aug 24 19:11:45 2025 +0800
+
+    internet access
+
+[33mcommit 9a64f0190bd7d10aa73808688cccfd6f5e2c41ca[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Sat Aug 23 20:33:41 2025 +0800
+
+    appconfig
+
+[33mcommit f1dc44da50aee9e4c227052c3d0b288c0c986f90[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Fri Aug 15 09:36:15 2025 +0800
+
+    Customer Home
+
+[33mcommit 5f10c3ac908825c8f84e0e1ec1b246cbab784819[m
+Author: JayMatt21 <jayson.matito@gmail.com>
+Date:   Fri Aug 15 09:32:15 2025 +0800
+
+    Initial commit
