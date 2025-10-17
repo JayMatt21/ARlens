@@ -10,10 +10,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  ar_flutter_plugin_updated: ^0.0.1
-  vector_math: ^2.1.0
+  ar_flutter_plugin: 0.7.3
+  vector_math: ^2.1.4
   dartz: ^0.10.1
   http: ^0.13.6
+  huawei_ar: ^3.7.0+3
   
   # State Management
   flutter_bloc: ^9.1.1
