@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'services_page.dart';
 import 'products_page.dart';
 import 'settings_page.dart';
-import 'area_calculator_page.dart';
+import 'area_calculator_ar_page.dart';
 
 class CustomerHomePage extends StatefulWidget {
   const CustomerHomePage({super.key});
@@ -17,7 +17,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
   final List<Widget> _pages = const [
     HomeTab(),
     ServicesPage(),
-    CustomerAreaCalculatorPage(), 
+    AreaCalculatorARPage(), 
     ProductsPage(),
     SettingsPage(),
   ];
@@ -44,7 +44,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
             end: Alignment.bottomRight,
           ),
         ),
-        child: _pages[_selectedIndex], // Keep child theme-consistent
+        child: _pages[_selectedIndex], 
       ),
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
