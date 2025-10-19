@@ -1,18 +1,17 @@
 plugins {
-    id "com.android.application"
-    id "kotlin-android"
-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
+    id "com.android.application" version "8.6.0"
+    id "org.jetbrains.kotlin.android" version "2.1.0"
     id "dev.flutter.flutter-gradle-plugin"
 }
 
 android {
-    namespace = "com.example.arlens"
-    compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    namespace "com.example.arlens"
+    compileSdk 34 // or the latest supported by Flutter (e.g., 34–36)
+    ndkVersion "25.2.9519653" // Optional: use your required NDK version
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     kotlinOptions {
@@ -20,11 +19,11 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.arlens"
-        minSdk = 24          // required by ar_flutter_plugin_updated
-        targetSdk = 36
-        versionCode = 1
-        versionName = "1.0.0"
+        applicationId "com.example.arlens"
+        minSdk 24           // required by ar_flutter_plugin_updated
+        targetSdk 34        // match compileSdk, or your platform target
+        versionCode 1
+        versionName "1.0.0"
     }
 
     buildTypes {
@@ -43,5 +42,5 @@ android {
 }
 
 flutter {
-    source = "../.."
+    source "../.."
 }
