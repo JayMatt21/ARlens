@@ -21,6 +21,9 @@ dependencies:
   equatable: ^2.0.5
   flutter_secure_storage: ^9.0.0
 
+  # Permissions
+  permission_handler: ^10.4.5
+
   # Supabase
   supabase_flutter: ^2.5.6
 

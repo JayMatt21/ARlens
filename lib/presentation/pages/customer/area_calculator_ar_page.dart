@@ -6,7 +6,7 @@ import 'package:ar_flutter_plugin/managers/ar_object_manager.dart';
 import 'package:ar_flutter_plugin/managers/ar_anchor_manager.dart';
 import 'package:ar_flutter_plugin/managers/ar_location_manager.dart';
 import 'package:ar_flutter_plugin/widgets/ar_view.dart';
-
+import 'package:permission_handler/permission_handler.dart';
 
 class AreaCalculatorARPage extends StatefulWidget {
   const AreaCalculatorARPage({super.key});
@@ -19,6 +19,19 @@ class _AreaCalculatorARPageState extends State<AreaCalculatorARPage> {
   double calculatedArea = 0.0;
 
   @override
+  void initState() {
+    super.initState();
+    requestCameraPermission();
+  }
+
+  Future<void> requestCameraPermission() async {
+    var status = await Permission.camera.status;
+    if (!status.isGranted) {
+      await Permission.camera.request();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('AR Room Area Calculator')),
@@ -27,7 +40,7 @@ class _AreaCalculatorARPageState extends State<AreaCalculatorARPage> {
           Expanded(
             child: ARView(
               onARViewCreated: _onARViewCreated,
-              // planeDetectionConfig: PlaneDetectionConfig.horizontal, // add if you want, supported by some builds
+              // planeDetectionConfig: PlaneDetectionConfig.horizontal, // optional
             ),
           ),
           Padding(
@@ -45,7 +58,9 @@ class _AreaCalculatorARPageState extends State<AreaCalculatorARPage> {
                     ),
                     const SizedBox(width: 12),
                     ElevatedButton(
-                      onPressed: points.length >= 3 ? () => _showACRecommendation(context) : null,
+                      onPressed: points.length >= 3
+                          ? () => _showACRecommendation(context)
+                          : null,
                       child: const Text("Suggest AC"),
                     ),
                   ],
@@ -64,30 +79,46 @@ class _AreaCalculatorARPageState extends State<AreaCalculatorARPage> {
     ARAnchorManager arAnchorManager,
     ARLocationManager arLocationManager,
   ) {
-    arSessionManager.onPlaneOrPointTap = (List<dynamic> hits) {
-      if (hits.isNotEmpty) {
-        // Determine how to read position from hits (use print(hits.first) if needed)
-        var pos, x, y, z;
-        try {
-          // Most versions support this:
-          pos = hits.first.worldTransform.getTranslation();
-          x = pos.x;
-          y = pos.y;
-          z = pos.z;
-        } catch (e) {
-          pos = hits.first.position ?? hits.first;
-          x = pos.x ?? 0.0;
-          y = pos.y ?? 0.0;
-          z = pos.z ?? 0.0;
-        }
-        setState(() {
-          points.add(Vector3(x, y, z));
-          if (points.length >= 3) {
-            calculatedArea = _calculateArea(points);
+    try {
+      arSessionManager.onPlaneOrPointTap = (List<dynamic> hits) {
+        if (hits.isNotEmpty) {
+          var pos, x, y, z;
+          try {
+            pos = hits.first.worldTransform.getTranslation();
+            x = pos.x;
+            y = pos.y;
+            z = pos.z;
+          } catch (e) {
+            pos = hits.first.position ?? hits.first;
+            x = pos.x ?? 0.0;
+            y = pos.y ?? 0.0;
+            z = pos.z ?? 0.0;
           }
-        });
-      }
-    };
+          setState(() {
+            points.add(Vector3(x, y, z));
+            if (points.length >= 3) {
+              calculatedArea = _calculateArea(points);
+            }
+          });
+        }
+      };
+    } catch (e, stack) {
+      print('Camera/AR initialization failed: $e');
+      print('Stack trace: $stack');
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Text("Camera/AR Error"),
+          content: Text('Initialization failed: $e'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("OK"),
+            ),
+          ],
+        ),
+      );
+    }
   }
 
   double _calculateArea(List<Vector3> pts) {
@@ -123,8 +154,7 @@ class _AreaCalculatorARPageState extends State<AreaCalculatorARPage> {
       builder: (_) => AlertDialog(
         title: const Text("AC Recommendation"),
         content: Text(
-          "Detected area: ${calculatedArea.toStringAsFixed(2)} m²\nSuggested unit: $suggestion"
-        ),
+            "Detected area: ${calculatedArea.toStringAsFixed(2)} m²\nSuggested unit: $suggestion"),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
