@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:ar_flutter_plugin/ar_flutter_plugin.dart';
 import 'package:vector_math/vector_math_64.dart';
+import 'package:ar_flutter_plugin/managers/ar_session_manager.dart';
+import 'package:ar_flutter_plugin/managers/ar_object_manager.dart';
+import 'package:ar_flutter_plugin/managers/ar_anchor_manager.dart';
+import 'package:ar_flutter_plugin/managers/ar_location_manager.dart';
+import 'package:ar_flutter_plugin/widgets/ar_view.dart';
+
 
 class AreaCalculatorARPage extends StatefulWidget {
   const AreaCalculatorARPage({super.key});
@@ -11,35 +17,33 @@ class AreaCalculatorARPage extends StatefulWidget {
 class _AreaCalculatorARPageState extends State<AreaCalculatorARPage> {
   List<Vector3> points = [];
   double calculatedArea = 0.0;
-  String status = "Move your phone slowly to detect floor plane.";
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("AR Room Area Calculator")),
+      appBar: AppBar(title: const Text('AR Room Area Calculator')),
       body: Column(
         children: [
           Expanded(
             child: ARView(
               onARViewCreated: _onARViewCreated,
-              planeDetectionConfig: PlaneDetectionConfig.horizontal,
+              // planeDetectionConfig: PlaneDetectionConfig.horizontal, // add if you want, supported by some builds
             ),
           ),
           Padding(
             padding: const EdgeInsets.all(12),
             child: Column(
               children: [
-                Text(status),
-                Text("Points: ${points.length}"),
+                Text("Points selected: ${points.length}"),
                 Text("Estimated Area: ${calculatedArea.toStringAsFixed(2)} m²"),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     ElevatedButton(
-                      onPressed: _resetPoints,
+                      onPressed: points.isNotEmpty ? _resetPoints : null,
                       child: const Text("Reset"),
                     ),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: 12),
                     ElevatedButton(
                       onPressed: points.length >= 3 ? () => _showACRecommendation(context) : null,
                       child: const Text("Suggest AC"),
@@ -54,16 +58,32 @@ class _AreaCalculatorARPageState extends State<AreaCalculatorARPage> {
     );
   }
 
-  void _onARViewCreated(ARViewController controller) {
-    controller.onPlaneTap = (List<ARPlaneTapResult> hits) {
+  void _onARViewCreated(
+    ARSessionManager arSessionManager,
+    ARObjectManager arObjectManager,
+    ARAnchorManager arAnchorManager,
+    ARLocationManager arLocationManager,
+  ) {
+    arSessionManager.onPlaneOrPointTap = (List<dynamic> hits) {
       if (hits.isNotEmpty) {
-        final pos = hits.first.worldTransform.getTranslation();
+        // Determine how to read position from hits (use print(hits.first) if needed)
+        var pos, x, y, z;
+        try {
+          // Most versions support this:
+          pos = hits.first.worldTransform.getTranslation();
+          x = pos.x;
+          y = pos.y;
+          z = pos.z;
+        } catch (e) {
+          pos = hits.first.position ?? hits.first;
+          x = pos.x ?? 0.0;
+          y = pos.y ?? 0.0;
+          z = pos.z ?? 0.0;
+        }
         setState(() {
-          points.add(Vector3(pos.x, pos.y, pos.z));
-          status = "Tap corners. At least 3 points are needed.";
+          points.add(Vector3(x, y, z));
           if (points.length >= 3) {
             calculatedArea = _calculateArea(points);
-            status = "Area calculated. Add more points or press 'Suggest AC'.";
           }
         });
       }
@@ -78,14 +98,13 @@ class _AreaCalculatorARPageState extends State<AreaCalculatorARPage> {
       final p2 = pts[(i + 1) % pts.length];
       area += (p1.x * p2.z) - (p2.x * p1.z);
     }
-    return area.abs() / 2.0;
+    return area.abs() / 2.0; // Area calculation for XZ plane.
   }
 
   void _resetPoints() {
     setState(() {
       points.clear();
       calculatedArea = 0.0;
-      status = "Move your phone slowly to detect plane.";
     });
   }
 
@@ -104,7 +123,7 @@ class _AreaCalculatorARPageState extends State<AreaCalculatorARPage> {
       builder: (_) => AlertDialog(
         title: const Text("AC Recommendation"),
         content: Text(
-          "Detected room area: ${calculatedArea.toStringAsFixed(2)} m²\n\nSuggested unit: $suggestion"
+          "Detected area: ${calculatedArea.toStringAsFixed(2)} m²\nSuggested unit: $suggestion"
         ),
         actions: [
           TextButton(

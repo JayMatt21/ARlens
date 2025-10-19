@@ -10,9 +10,9 @@ import 'package:ar_flutter_plugin/datatypes/node_types.dart';
 import 'package:ar_flutter_plugin/datatypes/hittest_result_types.dart';
 import 'package:ar_flutter_plugin/models/ar_node.dart';
 import 'package:ar_flutter_plugin/models/ar_hittest_result.dart';
-import 'package:flutter/services.dart';
+//import 'package:flutter/services.dart';
 import 'package:vector_math/vector_math_64.dart';
-import 'dart:math';
+//import 'dart:math';
 
 class ObjectsOnPlanesWidget extends StatefulWidget {
   const ObjectsOnPlanesWidget({Key? key}) : super(key: key);
@@ -101,9 +101,9 @@ class _ObjectsOnPlanesWidgetState extends State<ObjectsOnPlanesWidget> {
         (hitTestResult) => hitTestResult.type == ARHitTestResultType.plane);
     var newAnchor =
         ARPlaneAnchor(transformation: singleHitTestResult.worldTransform);
-    bool? didAddAnchor = await this.arAnchorManager!.addAnchor(newAnchor);
+    bool? didAddAnchor = await arAnchorManager!.addAnchor(newAnchor);
     if (didAddAnchor!) {
-      this.anchors.add(newAnchor);
+      anchors.add(newAnchor);
       // Add note to anchor
       var newNode = ARNode(
           type: NodeType.webGLB,
@@ -113,14 +113,14 @@ class _ObjectsOnPlanesWidgetState extends State<ObjectsOnPlanesWidget> {
           position: Vector3(0.0, 0.0, 0.0),
           rotation: Vector4(1.0, 0.0, 0.0, 0.0));
       bool? didAddNodeToAnchor =
-          await this.arObjectManager!.addNode(newNode, planeAnchor: newAnchor);
+          await arObjectManager!.addNode(newNode, planeAnchor: newAnchor);
       if (didAddNodeToAnchor!) {
-        this.nodes.add(newNode);
+        nodes.add(newNode);
       } else {
-        this.arSessionManager!.onError("Adding Node to Anchor failed");
+        arSessionManager!.onError("Adding Node to Anchor failed");
       }
     } else {
-      this.arSessionManager!.onError("Adding Anchor failed");
+      arSessionManager!.onError("Adding Anchor failed");
     }
     /*
     // To add a node to the tapped position without creating an anchor, use the following code (Please mind: the function onRemoveEverything has to be adapted accordingly!):

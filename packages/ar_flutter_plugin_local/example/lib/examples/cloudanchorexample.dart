@@ -1,4 +1,4 @@
-import 'dart:convert';
+//import 'dart:convert';
 
 import 'package:ar_flutter_plugin/managers/ar_location_manager.dart';
 import 'package:ar_flutter_plugin/managers/ar_session_manager.dart';
@@ -238,9 +238,9 @@ class _CloudAnchorWidgetState extends State<CloudAnchorWidget> {
         (hitTestResult) => hitTestResult.type == ARHitTestResultType.plane);
     var newAnchor = ARPlaneAnchor(
         transformation: singleHitTestResult.worldTransform, ttl: 2);
-    bool? didAddAnchor = await this.arAnchorManager!.addAnchor(newAnchor);
+    bool? didAddAnchor = await arAnchorManager!.addAnchor(newAnchor);
     if (didAddAnchor ?? false) {
-      this.anchors.add(newAnchor);
+      anchors.add(newAnchor);
       // Add note to anchor
       var newNode = ARNode(
           type: NodeType.webGLB,
@@ -250,17 +250,17 @@ class _CloudAnchorWidgetState extends State<CloudAnchorWidget> {
           rotation: Vector4(1.0, 0.0, 0.0, 0.0),
           data: {"onTapText": "Ouch, that hurt!"});
       bool? didAddNodeToAnchor =
-          await this.arObjectManager!.addNode(newNode, planeAnchor: newAnchor);
+          await arObjectManager!.addNode(newNode, planeAnchor: newAnchor);
       if (didAddNodeToAnchor ?? false) {
-        this.nodes.add(newNode);
+        nodes.add(newNode);
         setState(() {
           readyToUpload = true;
         });
       } else {
-        this.arSessionManager!.onError("Adding Node to Anchor failed");
+        arSessionManager!.onError("Adding Node to Anchor failed");
       }
     } else {
-      this.arSessionManager!.onError("Adding Anchor failed");
+      arSessionManager!.onError("Adding Anchor failed");
     }
     }
 
@@ -315,20 +315,15 @@ class _CloudAnchorWidgetState extends State<CloudAnchorWidget> {
     //});
 
     // Get anchors within a radius of 100m of the current device's location
-    if (arLocationManager!.currentLocation != null) {
-      firebaseManager.downloadAnchorsByLocation((snapshot) {
-        final cloudAnchorId = snapshot.get("cloudanchorid");
-        anchorsInDownloadProgress[cloudAnchorId] = snapshot.data() as Map<String, dynamic>;
-        arAnchorManager!.downloadAnchor(cloudAnchorId);
-      }, arLocationManager!.currentLocation, 0.1);
-      setState(() {
-        readyToDownload = false;
-      });
-    } else {
-      arSessionManager!
-          .onError("Location updates not running, can't download anchors");
+    firebaseManager.downloadAnchorsByLocation((snapshot) {
+      final cloudAnchorId = snapshot.get("cloudanchorid");
+      anchorsInDownloadProgress[cloudAnchorId] = snapshot.data() as Map<String, dynamic>;
+      arAnchorManager!.downloadAnchor(cloudAnchorId);
+    }, arLocationManager!.currentLocation, 0.1);
+    setState(() {
+      readyToDownload = false;
+    });
     }
-  }
 
   void showAlertDialog(BuildContext context, String title, String content,
       String buttonText, Function buttonFunction, String cancelButtonText) {

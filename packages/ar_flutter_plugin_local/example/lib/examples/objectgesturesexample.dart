@@ -12,7 +12,7 @@ import 'package:ar_flutter_plugin/models/ar_node.dart';
 import 'package:ar_flutter_plugin/models/ar_hittest_result.dart';
 import 'package:flutter/services.dart';
 import 'package:vector_math/vector_math_64.dart';
-import 'dart:math';
+//import 'dart:math';
 
 class ObjectGesturesWidget extends StatefulWidget {
   const ObjectGesturesWidget({Key? key}) : super(key: key);
@@ -103,9 +103,9 @@ class _ObjectGesturesWidgetState extends State<ObjectGesturesWidget> {
         (hitTestResult) => hitTestResult.type == ARHitTestResultType.plane);
     var newAnchor =
         ARPlaneAnchor(transformation: singleHitTestResult.worldTransform);
-    bool? didAddAnchor = await this.arAnchorManager!.addAnchor(newAnchor);
+    bool? didAddAnchor = await arAnchorManager!.addAnchor(newAnchor);
     if (didAddAnchor!) {
-      this.anchors.add(newAnchor);
+      anchors.add(newAnchor);
       // Add note to anchor
       var newNode = ARNode(
           type: NodeType.webGLB,
@@ -115,14 +115,14 @@ class _ObjectGesturesWidgetState extends State<ObjectGesturesWidget> {
           position: Vector3(0.0, 0.0, 0.0),
           rotation: Vector4(1.0, 0.0, 0.0, 0.0));
       bool? didAddNodeToAnchor =
-          await this.arObjectManager!.addNode(newNode, planeAnchor: newAnchor);
+          await arObjectManager!.addNode(newNode, planeAnchor: newAnchor);
       if (didAddNodeToAnchor!) {
-        this.nodes.add(newNode);
+        nodes.add(newNode);
       } else {
-        this.arSessionManager!.onError("Adding Node to Anchor failed");
+        arSessionManager!.onError("Adding Node to Anchor failed");
       }
     } else {
-      this.arSessionManager!.onError("Adding Anchor failed");
+      arSessionManager!.onError("Adding Anchor failed");
     }
     }
 
@@ -136,14 +136,7 @@ class _ObjectGesturesWidgetState extends State<ObjectGesturesWidget> {
 
   void onPanEnded(String nodeName, Matrix4 newTransform) {
     print("Ended panning node $nodeName");
-    final pannedNode =
-        nodes.firstWhere((element) => element.name == nodeName);
 
-    /*
-    * Uncomment the following command if you want to keep the transformations of the Flutter representations of the nodes up to date
-    * (e.g. if you intend to share the nodes through the cloud)
-    */
-    //pannedNode.transform = newTransform;
   }
 
   void onRotationStarted(String nodeName) {
@@ -156,13 +149,5 @@ class _ObjectGesturesWidgetState extends State<ObjectGesturesWidget> {
 
   void onRotationEnded(String nodeName, Matrix4 newTransform) {
     print("Ended rotating node $nodeName");
-    final rotatedNode =
-        nodes.firstWhere((element) => element.name == nodeName);
-
-    /*
-    * Uncomment the following command if you want to keep the transformations of the Flutter representations of the nodes up to date
-    * (e.g. if you intend to share the nodes through the cloud)
-    */
-    //rotatedNode.transform = newTransform;
   }
 }

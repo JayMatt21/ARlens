@@ -10,7 +10,6 @@ import 'package:ar_flutter_plugin/ar_flutter_plugin.dart';
 import 'package:ar_flutter_plugin/datatypes/config_planedetection.dart';
 import 'package:ar_flutter_plugin/datatypes/node_types.dart';
 import 'package:ar_flutter_plugin/models/ar_node.dart';
-import 'package:flutter/services.dart';
 import 'package:vector_math/vector_math_64.dart';
 import 'dart:math';
 import 'package:path_provider/path_provider.dart';
@@ -98,23 +97,24 @@ class _LocalAndWebObjectsWidgetState extends State<LocalAndWebObjectsWidget> {
     this.arObjectManager = arObjectManager;
 
     this.arSessionManager!.onInitialize(
-          showFeaturePoints: false,
-          showPlanes: true,
-          customPlaneTexturePath: "Images/triangle.png",
-          showWorldOrigin: true,
-          handleTaps: false,
-        );
+      showFeaturePoints: false,
+      showPlanes: true,
+      customPlaneTexturePath: "Images/triangle.png",
+      showWorldOrigin: true,
+      handleTaps: false,
+    );
     this.arObjectManager!.onInitialize();
 
-    //Download model to file system
     httpClient = HttpClient();
     _downloadFile(
-        "https://github.com/KhronosGroup/glTF-Sample-Models/raw/master/2.0/Duck/glTF-Binary/Duck.glb",
-        "LocalDuck.glb");
-    // Alternative to use type fileSystemAppFolderGLTF2:
-    //_downloadAndUnpack(
-    //    "https://drive.google.com/uc?export=download&id=1fng7yiK0DIR0uem7XkV2nlPSGH9PysUs",
-    //    "Chicken_01.zip");
+      "https://github.com/KhronosGroup/glTF-Sample-Models/raw/master/2.0/Duck/glTF-Binary/Duck.glb",
+      "LocalDuck.glb");
+
+    // Add this line to actually use _downloadAndUnpack
+    _downloadAndUnpack(
+      "https://drive.google.com/uc?export=download&id=1fng7yiK0DIR0uem7XkV2nlPSGH9PysUs",
+      "Chicken_01.zip");
+
   }
 
   Future<File> _downloadFile(String url, String filename) async {

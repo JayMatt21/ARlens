@@ -106,7 +106,7 @@ class ARLocationManager {
   ///
   /// When the location services are not enabled or permissions
   /// are denied the `Future` will return an error.
-  Future<Position> _determinePosition() async {
+  /*Future<Position> _determinePosition() async {
     bool serviceEnabled;
     LocationPermission permission;
 
@@ -141,4 +141,5 @@ class ARLocationManager {
     // continue accessing the position of the device.
     return await Geolocator.getCurrentPosition();
   }
+}*/
 }
