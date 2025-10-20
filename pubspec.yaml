@@ -15,7 +15,8 @@ dependencies:
   dartz: ^0.10.1
   http: ^0.13.6
   huawei_ar: ^3.7.0+3
-  
+  device_info_plus: ^10.1.0
+
   # State Management
   flutter_bloc: ^9.1.1
   equatable: ^2.0.5

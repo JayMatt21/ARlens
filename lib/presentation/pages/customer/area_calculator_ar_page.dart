@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:ar_flutter_plugin/ar_flutter_plugin.dart';
-import 'package:vector_math/vector_math_64.dart';
 import 'package:ar_flutter_plugin/managers/ar_session_manager.dart';
 import 'package:ar_flutter_plugin/managers/ar_object_manager.dart';
 import 'package:ar_flutter_plugin/managers/ar_anchor_manager.dart';
 import 'package:ar_flutter_plugin/managers/ar_location_manager.dart';
-import 'package:ar_flutter_plugin/widgets/ar_view.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:huawei_ar/huawei_ar.dart';
+import 'package:vector_math/vector_math_64.dart';
 
 class AreaCalculatorARPage extends StatefulWidget {
   const AreaCalculatorARPage({super.key});
@@ -15,13 +16,17 @@ class AreaCalculatorARPage extends StatefulWidget {
 }
 
 class _AreaCalculatorARPageState extends State<AreaCalculatorARPage> {
+  bool? _isHuawei;
   List<Vector3> points = [];
   double calculatedArea = 0.0;
+  // ignore: unused_field
+  ARSceneController? _arSceneController;
 
   @override
   void initState() {
     super.initState();
     requestCameraPermission();
+    detectHuawei();
   }
 
   Future<void> requestCameraPermission() async {
@@ -31,17 +36,29 @@ class _AreaCalculatorARPageState extends State<AreaCalculatorARPage> {
     }
   }
 
+  Future<void> detectHuawei() async {
+    var info = await DeviceInfoPlugin().androidInfo;
+    setState(() {
+      _isHuawei = info.brand.toLowerCase().contains("huawei");
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (_isHuawei == null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('AR Room Area Calculator')),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
     return Scaffold(
       appBar: AppBar(title: const Text('AR Room Area Calculator')),
       body: Column(
         children: [
           Expanded(
-            child: ARView(
-              onARViewCreated: _onARViewCreated,
-              // planeDetectionConfig: PlaneDetectionConfig.horizontal, // optional
-            ),
+            child: _isHuawei!
+                ? _buildHuaweiARView()
+                : _buildArCoreARView(),
           ),
           Padding(
             padding: const EdgeInsets.all(12),
@@ -70,6 +87,13 @@ class _AreaCalculatorARPageState extends State<AreaCalculatorARPage> {
           ),
         ],
       ),
+    );
+  }
+
+  /// ARCore/Google methods
+  Widget _buildArCoreARView() {
+    return ARView(
+      onARViewCreated: _onARViewCreated,
     );
   }
 
@@ -102,13 +126,12 @@ class _AreaCalculatorARPageState extends State<AreaCalculatorARPage> {
           });
         }
       };
-    } catch (e, stack) {
-      print('Camera/AR initialization failed: $e');
-      print('Stack trace: $stack');
+    } catch (e) {
+      print('ARCore initialization failed: $e');
       showDialog(
         context: context,
         builder: (_) => AlertDialog(
-          title: const Text("Camera/AR Error"),
+          title: const Text("ARCore Error"),
           content: Text('Initialization failed: $e'),
           actions: [
             TextButton(
@@ -121,6 +144,27 @@ class _AreaCalculatorARPageState extends State<AreaCalculatorARPage> {
     }
   }
 
+  /// Huawei AR methods (requires huawei_ar package)
+  Widget _buildHuaweiARView() {
+  return AREngineScene(
+    ARSceneType.WORLD,
+    ARSceneWorldConfig(
+      objPath: "assets/your_model.obj",
+      texturePath: "assets/your_texture.png",
+      planeFindingMode: PlaneFindingMode.ENABLE,
+      //pointCloudMode: PointCloudMode.ENABLE,
+    ),
+    onArSceneCreated: _onHuaweiARViewCreated,
+    height: MediaQuery.of(context).size.height,
+    width: MediaQuery.of(context).size.width,
+  );
+}
+
+  void _onHuaweiARViewCreated(ARSceneController arSceneController) {
+    _arSceneController = arSceneController;
+  }
+
+  /// Area Calculation
   double _calculateArea(List<Vector3> pts) {
     if (pts.length < 3) return 0.0;
     double area = 0.0;
@@ -129,7 +173,7 @@ class _AreaCalculatorARPageState extends State<AreaCalculatorARPage> {
       final p2 = pts[(i + 1) % pts.length];
       area += (p1.x * p2.z) - (p2.x * p1.z);
     }
-    return area.abs() / 2.0; // Area calculation for XZ plane.
+    return area.abs() / 2.0;
   }
 
   void _resetPoints() {
@@ -148,7 +192,6 @@ class _AreaCalculatorARPageState extends State<AreaCalculatorARPage> {
     } else {
       suggestion = "2 HP+ AC (Large Room)";
     }
-
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
