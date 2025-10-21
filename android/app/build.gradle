@@ -41,6 +41,9 @@ android {
         }
     }
 }
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+}
 
 flutter {
     source "../.."
