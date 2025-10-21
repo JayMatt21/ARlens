@@ -1,8 +1,9 @@
+import 'package:arlens/presentation/pages/customer/video_auto_area_page.dart';
 import 'package:flutter/material.dart';
 import 'services_page.dart';
 import 'products_page.dart';
 import 'settings_page.dart';
-import 'area_calculator_page.dart';
+//import 'area_calculator_page.dart';
 
 class CustomerHomePage extends StatefulWidget {
   const CustomerHomePage({super.key});
@@ -17,7 +18,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
   final List<Widget> _pages = const [
     HomeTab(),
     ServicesPage(),
-    CustomerAreaCalculatorPage(), 
+    AutoCornerRoomCalculatorPage(), 
     ProductsPage(),
     SettingsPage(),
   ];
