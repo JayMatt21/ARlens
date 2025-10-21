@@ -12,9 +12,10 @@ dependencies:
     sdk: flutter
   ar_flutter_plugin: ^0.7.3
   camera: ^0.11.2
+  tflite_flutter: ^0.10.3
   vector_math: ^2.1.4
   dartz: ^0.10.1
-  http: ^1.5.0
+  http: ^0.13.6
   huawei_ar: ^3.7.0+3
   device_info_plus: ^12.1.0
   geolocator: ^9.0.2
@@ -44,6 +45,9 @@ dependencies:
   # Image & Camera
   image_picker: ^1.0.4
   cached_network_image: ^3.3.1
+  image: ^4.0.17
+  gallery_saver: ^2.3.2
+
 
   # Dependency Injection
   get_it: ^8.2.0
