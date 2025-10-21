@@ -65,7 +65,7 @@ class AppRoutes {
         routes: [
           GoRoute(
             path: 'area-calculator',
-            builder: (context, state) => const tech.AreaCalculatorPhotoPage(),
+            builder: (context, state) => const tech.CustomerAreaCalculatorPage(),
           ),
         ],
       ),
