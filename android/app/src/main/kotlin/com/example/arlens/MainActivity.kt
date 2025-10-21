@@ -11,6 +11,8 @@ import org.opencv.core.CvType
 import org.opencv.core.Mat
 import org.opencv.core.Size
 import org.opencv.imgproc.Imgproc
+import org.opencv.core.Point
+
 
 class MainActivity: FlutterActivity() {
     private val CHANNEL = "corner_detection_channel"
