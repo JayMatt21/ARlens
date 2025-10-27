@@ -42,7 +42,7 @@ android {
     }
 }
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation files('libs/opencv-455.jar')
 }
 
 flutter {
