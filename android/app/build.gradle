@@ -2,6 +2,7 @@ plugins {
     id "com.android.application"
     id "org.jetbrains.kotlin.android"
     id "dev.flutter.flutter-gradle-plugin"
+    id 'org.jetbrains.kotlin.android' version '1.7.10' apply false
 }
 
 android {
@@ -24,12 +25,6 @@ android {
 
     kotlinOptions {
         jvmTarget = "1.8"
-    }
-
-    sourceSets {
-        main {
-            jniLibs.srcDirs = ['libs'] // Native .so files location per ABI
-        }
     }
 
     buildTypes {

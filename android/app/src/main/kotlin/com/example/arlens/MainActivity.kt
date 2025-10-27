@@ -7,22 +7,24 @@ import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 import org.opencv.android.OpenCVLoader
 import org.opencv.android.Utils
-import org.opencv.core.CvType
 import org.opencv.core.Mat
+import org.opencv.core.Point
 import org.opencv.core.Size
 import org.opencv.imgproc.Imgproc
-import org.opencv.core.Point
+import org.opencv.core.MatOfPoint
 
 
-class MainActivity: FlutterActivity() {
+class MainActivity : FlutterActivity() {
     private val CHANNEL = "corner_detection_channel"
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
-        // Init OpenCV (recommended sa onCreate pero dito for demo)
+
+        // Initialize OpenCV
         if (!OpenCVLoader.initDebug()) {
-            // OpenCV load fail
+            // TODO: Handle failure to initialize OpenCV
         }
+
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler { call, result ->
             if (call.method == "detectCorners") {
                 val imageBytes: ByteArray? = call.argument("imageBytes")
@@ -36,26 +38,30 @@ class MainActivity: FlutterActivity() {
         }
     }
 
-    fun detectCorners(imageBytes: ByteArray): List<List<Int>> {
-        // 1. Convert bytes to Bitmap
+    private fun detectCorners(imageBytes: ByteArray): List<List<Int>> {
+        // Convert image bytes to a Bitmap
         val bmp: Bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-        // 2. Convert Bitmap to OpenCV Mat
+        // Convert Bitmap to OpenCV Mat
         val mat = Mat()
         Utils.bitmapToMat(bmp, mat)
-        // 3. Convert to grayscale (required)
+
+        // Convert to grayscale
         val grayMat = Mat()
         Imgproc.cvtColor(mat, grayMat, Imgproc.COLOR_RGBA2GRAY)
-        Imgproc.GaussianBlur(grayMat, grayMat, Size(7.0,7.0), 1.5)
-        // 4. Detect corners using Shi-Tomasi
-        val maxCorners = 4 // Detect up to 4 corners
+        Imgproc.GaussianBlur(grayMat, grayMat, Size(7.0, 7.0), 1.5)
+
+        // Detect corners using Shi-Tomasi
+        val maxCorners = 4
         val qualityLevel = 0.04
         val minDistance = 30.0
         val cornersMat = Mat()
+
         Imgproc.goodFeaturesToTrack(
             grayMat, cornersMat,
             maxCorners, qualityLevel, minDistance
         )
-        // 5. Convert result to List<List<Int>> of coordinates
+
+        // Convert result to List<List<Int>> for Flutter
         val result = mutableListOf<List<Int>>()
         for (i in 0 until cornersMat.rows()) {
             val data = cornersMat.get(i, 0)
@@ -65,7 +71,7 @@ class MainActivity: FlutterActivity() {
                 result.add(listOf(x, y))
             }
         }
-        // 6. Return as Flutter friendly list
+
         return result
     }
 }
