@@ -228,8 +228,8 @@ class _AreaCalculatorARPageState extends State<AreaCalculatorARPage> {
                   left: 24,
                   right: 24,
                   child: ElevatedButton(
-                    child: const Text("Capture and Measure (Camera Fallback)"),
                     onPressed: _markerFallbackMeasure,
+                    child: const Text("Capture and Measure (Camera Fallback)"),
                   ),
                 ),
               ],

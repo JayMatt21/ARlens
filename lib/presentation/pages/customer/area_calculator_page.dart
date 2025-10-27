@@ -177,8 +177,8 @@ class _CustomerAreaCalculatorPageState extends State<CustomerAreaCalculatorPage>
                     children: [
                       ElevatedButton(
                         onPressed: _startCalibration,
-                        child: const Text("Calibrate"),
                         style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
+                        child: const Text("Calibrate"),
                       ),
                       ElevatedButton(
                         onPressed: points.isNotEmpty ? _resetPoints : null,
@@ -186,8 +186,8 @@ class _CustomerAreaCalculatorPageState extends State<CustomerAreaCalculatorPage>
                       ),
                       ElevatedButton(
                         onPressed: points.length >= 3 ? () => _showACRecommendation(calculatedArea) : null,
-                        child: const Text("Suggest AC"),
                         style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                        child: const Text("Suggest AC"),
                       ),
                     ],
                   ),
@@ -200,13 +200,13 @@ class _CustomerAreaCalculatorPageState extends State<CustomerAreaCalculatorPage>
                     children: [
                       ElevatedButton(
                         onPressed: _finishCalibration,
-                        child: const Text("Done"),
                         style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                        child: const Text("Done"),
                       ),
                       ElevatedButton(
                         onPressed: _cancelCalibration,
-                        child: const Text("Cancel"),
                         style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                        child: const Text("Cancel"),
                       ),
                     ],
                   ),

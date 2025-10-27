@@ -278,7 +278,7 @@ class _ExternalModelManagementWidgetState
           scale: VectorMath.Vector3(0.2, 0.2, 0.2),
           position: VectorMath.Vector3(0.0, 0.0, 0.0),
           rotation: VectorMath.Vector4(1.0, 0.0, 0.0, 0.0),
-          data: {"onTapText": "I am a ${this.selectedModel.name}"});
+          data: {"onTapText": "I am a ${selectedModel.name}"});
       bool? didAddNodeToAnchor =
           await arObjectManager!.addNode(newNode, planeAnchor: newAnchor);
       if (didAddNodeToAnchor!) {
